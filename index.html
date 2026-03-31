@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gyuho Shim</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Gyuho Shim",
+    "jobTitle": "LLM Engineer / Researcher",
+    "affiliation": { "@type": "Organization", "name": "Korea University NLP&AI Lab" },
+    "url": "https://gyuhoshim.github.io",
+    "sameAs": [
+      "https://github.com/gyuhoshim",
+      "https://www.linkedin.com/in/gyuho-s-039a73220/",
+      "https://scholar.google.com/citations?user=6Oq0qSIAAAAJ"
+    ],
+    "knowsAbout": ["Large Language Models", "Document AI", "Multimodal RAG", "LLM Evaluation", "Mechanistic Interpretability"]
+  }
+  </script>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <span class="nav-name">Gyuho Shim</span>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#publications">Publications</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <span>|</span>
+      <button class="lang-btn" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section id="home" class="hero">
+  <div class="hero-inner">
+    <img
+      src="https://avatars.githubusercontent.com/u/76989110?v=4"
+      alt="Gyuho Shim"
+      class="profile-photo"
+    />
+    <div class="hero-text">
+      <h1 class="en">Hi, I'm Gyuho Shim 👋</h1>
+      <h1 class="ko" style="display:none">안녕하세요, 심규호입니다 👋</h1>
+      <p class="tagline en">I build LLM systems — from evaluation pipelines to reasoning models.</p>
+      <p class="tagline ko" style="display:none">LLM 시스템 엔지니어링 및 연구자 — 평가 파이프라인부터 추론 모델까지.</p>
+      <p class="bio en">
+        Master's student at <strong>Korea University NLP&amp;AI Lab</strong>, advised by Prof. Heuiseok Lim.<br/>
+        Previously BS (Triple Major: CS, Math, Statistics) at <strong>University of Wisconsin–Madison</strong>.<br/>
+        Interested in <strong>Document AI</strong>, <strong>Multimodal RAG</strong>, <strong>LLM Evaluation</strong>, and <strong>Mechanistic Interpretability</strong>.
+      </p>
+      <p class="bio ko" style="display:none">
+        고려대학교 NLP&amp;AI Lab 석사과정 (지도교수: 임희석 교수님).<br/>
+        이전에 위스콘신-매디슨 대학교 CS·수학·통계 트리플 전공 학사 취득.<br/>
+        Document AI, Multimodal RAG, LLM 평가, 기계론적 해석 가능성 연구.
+      </p>
+      <div class="hero-links">
+        <a href="bio/resume.pdf" class="btn" target="_blank">CV (PDF)</a>
+        <a href="https://scholar.google.com/citations?user=6Oq0qSIAAAAJ" class="btn btn-outline" target="_blank">Google Scholar</a>
+        <a href="https://github.com/gyuhoshim" class="btn btn-outline" target="_blank">GitHub</a>
+        <a href="https://www.linkedin.com/in/gyuho-s-039a73220/" class="btn btn-outline" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EDUCATION ===== -->
+<section id="education">
+  <div class="container">
+    <h2 class="section-title en">Education</h2>
+    <h2 class="section-title ko" style="display:none">학력</h2>
+    <div class="edu-list">
+
+      <div class="edu-item">
+        <div class="edu-left">
+          <div class="edu-degree en">M.S. in Computer Science</div>
+          <div class="edu-degree ko" style="display:none">컴퓨터공학 석사</div>
+          <div class="edu-school">Korea University</div>
+          <div class="edu-detail en">Advisor: Prof. Heuiseok Lim · GPA: 4.33 / 4.5</div>
+          <div class="edu-detail ko" style="display:none">지도교수: 임희석 교수님 · 학점: 4.33 / 4.5</div>
+          <div class="edu-focus en">Document AI · Multimodal RAG · LLM Agents</div>
+          <div class="edu-focus ko" style="display:none">Document AI · Multimodal RAG · LLM 에이전트</div>
+        </div>
+        <div class="edu-right">
+          <span class="edu-date">Expected Aug 2026</span>
+          <span class="edu-location">Seoul, South Korea</span>
+        </div>
+      </div>
+
+      <div class="edu-item">
+        <div class="edu-left">
+          <div class="edu-degree en">B.S. — Triple Major: CS, Mathematics, Statistics</div>
+          <div class="edu-degree ko" style="display:none">학사 — CS · 수학 · 통계 트리플 전공</div>
+          <div class="edu-school">University of Wisconsin–Madison</div>
+          <div class="edu-detail en">GPA: 3.55 / 4.0</div>
+          <div class="edu-detail ko" style="display:none">학점: 3.55 / 4.0</div>
+        </div>
+        <div class="edu-right">
+          <span class="edu-date">May 2024</span>
+          <span class="edu-location">Madison, WI</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="skills-block">
+      <h3 class="en">Technical Skills</h3>
+      <h3 class="ko" style="display:none">기술 스택</h3>
+      <div class="skill-row"><span class="skill-label">Core ML</span><span class="skill-tags">PyTorch · JAX · Hugging Face · Polars</span></div>
+      <div class="skill-row"><span class="skill-label">LLM Training</span><span class="skill-tags">DeepSpeed · FSDP · Megatron-LM · PEFT (LoRA, QLoRA)</span></div>
+      <div class="skill-row"><span class="skill-label">RL &amp; Evaluation</span><span class="skill-tags">GRPO · GSPO · RLHF (TRL) · LM-Eval-Harness · EvalChemy</span></div>
+      <div class="skill-row"><span class="skill-label">Inference</span><span class="skill-tags">vLLM · SGLang · TensorRT-LLM · KV Cache · Quantization</span></div>
+      <div class="skill-row"><span class="skill-label">MLOps</span><span class="skill-tags">CUDA · Triton · Docker · Kubernetes · AWS · W&amp;B</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PUBLICATIONS ===== -->
+<section id="publications" class="section-alt">
+  <div class="container">
+    <h2 class="section-title en">Publications</h2>
+    <h2 class="section-title ko" style="display:none">논문</h2>
+    <div class="pub-list">
+
+      <div class="pub-card">
+        <div class="pub-venue venue-acl">ACL 2025 · Oral</div>
+        <div class="pub-title">REVISE: A Framework for Revising OCRed text in Practical Information Systems with Data Contamination Strategy</div>
+        <div class="pub-authors"><strong>Shim, G.</strong>, Hong, S., &amp; Lim, H.</div>
+        <div class="pub-desc en">OCR post-correction framework addressing data contamination in practical document processing systems.</div>
+        <div class="pub-desc ko" style="display:none">실용 문서 처리 시스템에서 데이터 오염 전략을 통한 OCR 텍스트 교정 프레임워크.</div>
+        <div class="pub-links">
+          <a href="https://github.com/gyuhoshim/revise-ocr-correction" target="_blank">GitHub</a>
+        </div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue venue-emnlp">EMNLP 2025 · Oral</div>
+        <div class="pub-title">Benchmark Profiling: Mechanistic Diagnosis of LLM Benchmarks</div>
+        <div class="pub-authors">Kim, D., <strong>Shim, G.</strong>, Chun, Y. C., Kim, M., Park, C., &amp; Lim, H.</div>
+        <div class="pub-desc en">A mechanistic interpretability approach to diagnose and profile LLM benchmark behavior.</div>
+        <div class="pub-desc ko" style="display:none">LLM 벤치마크 행동을 진단하고 프로파일링하는 기계론적 해석 가능성 접근법.</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue venue-review">ACL 2026 · Under Review</div>
+        <div class="pub-title">HiKEY: Hierarchical Multimodal Retrieval for Open-Domain Document Question Answering</div>
+        <div class="pub-authors">Shin, J., <strong>Shim, G.</strong>, Park, J., Seo, J., &amp; Lim, H.</div>
+        <div class="pub-desc en">Hierarchical multimodal retrieval system for open-domain document QA.</div>
+        <div class="pub-desc ko" style="display:none">오픈 도메인 문서 QA를 위한 계층적 멀티모달 검색 시스템.</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
+        <div class="pub-title">CrossDocVQA: A Page-Grounded Diagnostic Benchmark for Open-Domain Cross-Document Multimodal QA</div>
+        <div class="pub-authors"><strong>Shim, G.</strong>, Shin, J., Kim, D., Seo, J., &amp; Lim, H.</div>
+        <div class="pub-desc en">A diagnostic benchmark for evaluating multimodal QA across multiple documents with page-level grounding.</div>
+        <div class="pub-desc ko" style="display:none">페이지 수준 근거를 통한 멀티모달 크로스 문서 QA 진단 벤치마크.</div>
+        <div class="pub-links">
+          <a href="https://github.com/gyuhoshim/CrossDocVQA" target="_blank">GitHub</a>
+        </div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
+        <div class="pub-title">PILAR: A Page-Grounded Unified Evidence Representation via an Entity-Linked Assertion Graph for Open-Domain QA Agents over Multimodal Document Corpora</div>
+        <div class="pub-authors">Shin, J., <strong>Shim, G.</strong>, Lee, J., &amp; Seo, J.</div>
+        <div class="pub-desc en">Entity-linked assertion graph for unified evidence representation in multimodal document QA agents.</div>
+        <div class="pub-desc ko" style="display:none">멀티모달 문서 QA 에이전트를 위한 엔티티 연결 단언 그래프 기반 통합 근거 표현.</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue venue-review">ACL 2026 · Under Review</div>
+        <div class="pub-title">Towards Computational Comprehension: A Non-Anthropocentric Framework for Evaluating LLM Understanding</div>
+        <div class="pub-authors">Kim, D., <strong>Shim, G.</strong>, Kim, M., Park, C., &amp; Lim, H.</div>
+        <div class="pub-desc en">A non-anthropocentric evaluation framework redefining how we measure LLM understanding.</div>
+        <div class="pub-desc ko" style="display:none">LLM 이해도 측정 방식을 재정의하는 비인간 중심 평가 프레임워크.</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
+        <div class="pub-title">Mixture-of-Models: A Loosely-coupled LLM Orchestration Framework for Multi-Domain Task Solving</div>
+        <div class="pub-authors">Hong, S., <strong>Shim, G.</strong>, Eo, S., Kim, J., Lee, J., &amp; Lim, H.</div>
+        <div class="pub-desc en">Loosely-coupled LLM orchestration for solving tasks across multiple domains.</div>
+        <div class="pub-desc ko" style="display:none">다중 도메인 태스크 해결을 위한 느슨하게 결합된 LLM 오케스트레이션 프레임워크.</div>
+      </div>
+
+      <div class="pub-card">
+        <div class="pub-venue venue-report">Technical Report · Jan 2026</div>
+        <div class="pub-title">VAETKI Technical Report</div>
+        <div class="pub-authors">NC-AI Consortium</div>
+        <div class="pub-desc en">Technical report for the WBL Independent AI Foundation Model project in collaboration with NC AI and ETRI.</div>
+        <div class="pub-desc ko" style="display:none">NC AI 및 ETRI와의 WBL 독립 AI 파운데이션 모델 프로젝트 기술 보고서.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROJECTS ===== -->
+<section id="projects">
+  <div class="container">
+    <h2 class="section-title en">Projects</h2>
+    <h2 class="section-title ko" style="display:none">프로젝트</h2>
+    <div class="proj-list">
+
+      <div class="proj-card">
+        <div class="proj-header">
+          <div>
+            <div class="proj-title">WBL Independent AI Foundation Model (VAETKI)</div>
+            <div class="proj-collab en">Collaboration with NC AI &amp; ETRI</div>
+            <div class="proj-collab ko" style="display:none">NC AI &amp; ETRI 협력</div>
+          </div>
+        </div>
+        <ul class="proj-bullets en">
+          <li>Owned engineering of large-scale evaluation pipeline standardizing <strong>50+ benchmarks</strong> into a single reproducible runtime with automated regression tracking.</li>
+          <li>Implemented end-to-end checkpoint-to-evaluation automation and integrated <strong>vLLM</strong> to accelerate inference throughput.</li>
+          <li>Built <strong>W&amp;B Weave</strong> trace analysis dashboards to debug reasoning failures and support slice-level comparisons.</li>
+          <li>Implemented <strong>data-mixture contribution analysis</strong> to quantify which dataset combinations drove metric gains.</li>
+          <li>Introduced contamination defenses including deduplication and overlap scans for fair, comparable evaluations.</li>
+        </ul>
+        <ul class="proj-bullets ko" style="display:none">
+          <li>50+ 벤치마크를 단일 재현 가능 런타임으로 표준화한 대규모 평가 파이프라인 엔지니어링.</li>
+          <li>체크포인트-평가 자동화 파이프라인 구현 및 vLLM 통합으로 추론 처리량 향상.</li>
+          <li>W&amp;B Weave 트레이스 분석 대시보드 구축으로 추론 실패 디버깅 및 슬라이스 수준 비교 지원.</li>
+          <li>데이터 혼합 기여도 분석을 통한 메트릭 향상 데이터셋 조합 정량화.</li>
+          <li>중복 제거 및 오버랩 스캔을 포함한 오염 방지 메커니즘 도입.</li>
+        </ul>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header">
+          <div>
+            <div class="proj-title">KULLM Reasoning Model Training</div>
+            <div class="proj-collab">
+              <a href="https://huggingface.co/nobrand/KULLM-R" target="_blank">nobrand/KULLM-R</a>
+              · NLP&amp;AI Lab, Korea University
+            </div>
+          </div>
+        </div>
+        <ul class="proj-bullets en">
+          <li>Implemented <strong>GRPO</strong> reinforcement learning in <strong>VERL</strong> with multi-rollout group scoring for Korean reasoning tasks.</li>
+          <li>Designed verifiable custom reward functions with <strong>adaptive length penalty</strong> — reducing verbosity on easy problems while preserving depth on hard ones.</li>
+          <li>Tuned reward weights and RL hyperparameters (KL coefficient, rollout settings, max response length) for accuracy-compute-quality balance.</li>
+          <li>Ran iterative evaluations on Korean math and reasoning benchmarks (Pass@1 and length diagnostics).</li>
+        </ul>
+        <ul class="proj-bullets ko" style="display:none">
+          <li>한국어 추론 태스크를 위한 VERL 기반 GRPO 강화학습 구현.</li>
+          <li>적응형 길이 패널티를 포함한 검증 가능한 커스텀 보상 함수 설계.</li>
+          <li>KL 계수, 롤아웃 설정 등 RL 하이퍼파라미터 최적화.</li>
+          <li>한국어 수학·추론 벤치마크에서 반복적 평가 수행 (Pass@1 및 길이 진단).</li>
+        </ul>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header">
+          <div>
+            <div class="proj-title">Document AI Service</div>
+            <div class="proj-collab en">NLP&amp;AI Lab, Korea University</div>
+            <div class="proj-collab ko" style="display:none">고려대학교 NLP&amp;AI Lab</div>
+          </div>
+        </div>
+        <ul class="proj-bullets en">
+          <li>Built end-to-end Document AI MVP: FastAPI + React app parsing enterprise documents (PDF, DOCX, XLSX, PPTX) supporting 6+ parsing backends.</li>
+          <li>Integrated multi-model parser orchestration for 6 document layout models (DETR, VGT, DHP, MinerU2.5, DocLayout-YOLO) with NMS optimization.</li>
+          <li>Implemented evidence-first AI features: structure-aware search, QA with evidence packaging, hierarchical summarization, and multi-document comparison.</li>
+          <li>Engineered document hierarchy parsing with token-cache-based M3DocDep model and automated page rendering.</li>
+        </ul>
+        <ul class="proj-bullets ko" style="display:none">
+          <li>FastAPI + React 기반 엔터프라이즈 문서 처리 MVP 구축 (6+ 파싱 백엔드 지원).</li>
+          <li>6개 문서 레이아웃 모델 통합 오케스트레이션 및 NMS 최적화.</li>
+          <li>근거 중심 AI 기능 구현: 구조 인식 검색, 근거 패키징 QA, 계층적 요약.</li>
+          <li>M3DocDep 계층 모델 기반 문서 계층 파싱 서비스 엔지니어링.</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXPERIENCE ===== -->
+<section id="experience" class="section-alt">
+  <div class="container">
+    <h2 class="section-title en">Experience</h2>
+    <h2 class="section-title ko" style="display:none">경력</h2>
+    <div class="exp-list">
+
+      <div class="exp-item">
+        <div class="exp-left">
+          <div class="exp-role en">NLP &amp; AI Researcher</div>
+          <div class="exp-role ko" style="display:none">NLP &amp; AI 연구원</div>
+          <div class="exp-org">NLP&amp;AI Lab, Korea University</div>
+          <div class="exp-location en">Seoul, South Korea</div>
+          <div class="exp-location ko" style="display:none">서울, 대한민국</div>
+        </div>
+        <div class="exp-right">
+          <span class="exp-date">Jan 2024 – Feb 2026</span>
+        </div>
+      </div>
+      <ul class="exp-bullets en">
+        <li>Co-authored 10+ papers at top-tier ACL venues (ACL, EMNLP, NAACL).</li>
+        <li>Drove benchmark design, evaluation recipes, regression policies, and dataset versioning across lab and consortium model iterations.</li>
+        <li>Supported Korean LLM post-training: GRPO in VERL for KULLM Reasoning, instruction tuning for KULLM3 and Ko Gemma.</li>
+        <li>Developed SAE-based feature discovery, steering, and causal intervention workflows for mechanistic interpretability.</li>
+        <li>Operated shared GPU infrastructure (40+ A100/H100) for 30+ researchers — Kubernetes, Docker, experiment tracking.</li>
+        <li>Built safety audit harnesses with jailbreak/refusal checks, PII screening, and toxicity regression monitoring.</li>
+      </ul>
+      <ul class="exp-bullets ko" style="display:none">
+        <li>ACL, EMNLP, NAACL 등 최우수 학술대회 논문 10편 이상 공저.</li>
+        <li>벤치마크 설계, 평가 레시피, 회귀 정책, 데이터셋 버전 관리 주도.</li>
+        <li>KULLM 추론 모델(GRPO), KULLM3, Ko Gemma 한국어 LLM 후처리 학습 지원.</li>
+        <li>SAE 기반 피처 발견, 스티어링, 인과 개입 워크플로우 개발.</li>
+        <li>A100/H100 40+ GPU 공유 인프라 운영 (Kubernetes, Docker, 실험 추적).</li>
+        <li>탈옥/거부 검사, PII 스크리닝, 독성 회귀 모니터링 포함 안전 감사 하네스 구축.</li>
+      </ul>
+
+      <div class="exp-item" style="margin-top:1.5rem;">
+        <div class="exp-left">
+          <div class="exp-role en">NLP &amp; AI Research Assistant</div>
+          <div class="exp-role ko" style="display:none">NLP &amp; AI 연구 보조원</div>
+          <div class="exp-org">Karumbaiah Lab, UW–Madison</div>
+          <div class="exp-location">Madison, WI</div>
+        </div>
+        <div class="exp-right">
+          <span class="exp-date">Sep 2023 – May 2024</span>
+        </div>
+      </div>
+      <ul class="exp-bullets en">
+        <li>One of 7 RAs in Shamya Karumbaiah's Human–AI Research Lab, focusing on NLP model enhancement.</li>
+        <li>Error analysis using Errudite to assess LLMs providing automated feedback on student essays.</li>
+        <li>Behavioral tests analyzing linguistic attributes (negation, length, adjectives, entities) in LLMs.</li>
+      </ul>
+      <ul class="exp-bullets ko" style="display:none">
+        <li>Shamya Karumbaiah 교수님 연구실 7명의 RA 중 한 명으로 NLP 모델 개선 연구.</li>
+        <li>Errudite 라이브러리를 활용한 학생 에세이 자동 피드백 LLM 오류 분석.</li>
+        <li>LLM 언어적 속성(부정, 길이, 형용사, 엔티티) 행동 테스트 수행.</li>
+      </ul>
+
+      <div class="exp-item" style="margin-top:1.5rem;">
+        <div class="exp-left">
+          <div class="exp-role en">Data Scientist</div>
+          <div class="exp-role ko" style="display:none">데이터 사이언티스트</div>
+          <div class="exp-org">Aivelabs</div>
+          <div class="exp-location en">Seoul, South Korea</div>
+          <div class="exp-location ko" style="display:none">서울, 대한민국</div>
+        </div>
+        <div class="exp-right">
+          <span class="exp-date">Aug 2021 – Jan 2022</span>
+        </div>
+      </div>
+      <ul class="exp-bullets en">
+        <li>Created report automation using Python, SQL, and Excel, improving report generation speed by 30%.</li>
+        <li>Collaborated with Amore Pacific marketing teams to fulfill data requests via SQL and Google Analytics.</li>
+        <li>Applied sentiment analysis with NLTK on customer reviews to inform promotional message creation.</li>
+      </ul>
+      <ul class="exp-bullets ko" style="display:none">
+        <li>Python, SQL, Excel 보고서 자동화 코드 작성으로 생성 속도 30% 향상.</li>
+        <li>SQL 및 Google Analytics를 통해 아모레퍼시픽 마케팅팀 데이터 요청 처리.</li>
+        <li>NLTK 감성 분석으로 고객 리뷰 분석 및 광고 문구 개선 지원.</li>
+      </ul>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact">
+  <div class="container contact-inner">
+    <h2 class="section-title en">Contact</h2>
+    <h2 class="section-title ko" style="display:none">연락처</h2>
+    <p class="en">Feel free to reach out for research collaborations, opportunities, or just to say hi.</p>
+    <p class="ko" style="display:none">연구 협업, 채용 문의, 혹은 그냥 인사라도 편하게 연락 주세요.</p>
+    <div class="contact-links">
+      <a href="mailto:johngyuhoshim@gmail.com">johngyuhoshim@gmail.com</a>
+      <a href="https://github.com/gyuhoshim" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/gyuho-s-039a73220/" target="_blank">LinkedIn</a>
+      <a href="https://scholar.google.com/citations?user=6Oq0qSIAAAAJ" target="_blank">Google Scholar</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>© 2026 Gyuho Shim. All rights reserved.</p>
+</footer>
+
+<script>
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Language toggle
+  function setLang(lang) {
+    document.querySelectorAll('.en').forEach(el => el.style.display = lang === 'en' ? '' : 'none');
+    document.querySelectorAll('.ko').forEach(el => el.style.display = lang === 'ko' ? '' : 'none');
+    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  }
+</script>
+
+</body>
+</html>
