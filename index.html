@@ -137,74 +137,127 @@
     <h2 class="section-title ko" style="display:none">논문</h2>
     <div class="pub-list">
 
-      <div class="pub-card">
-        <div class="pub-venue venue-acl">ACL 2025 · Oral</div>
-        <div class="pub-title">REVISE: A Framework for Revising OCRed text in Practical Information Systems with Data Contamination Strategy</div>
-        <div class="pub-authors"><strong>Shim, G.</strong>, Hong, S., &amp; Lim, H.</div>
-        <div class="pub-desc en">OCR post-correction framework addressing data contamination in practical document processing systems.</div>
-        <div class="pub-desc ko" style="display:none">실용 문서 처리 시스템에서 데이터 오염 전략을 통한 OCR 텍스트 교정 프레임워크.</div>
-        <div class="pub-links">
-          <a href="https://github.com/gyuhoshim/revise-ocr-correction" target="_blank">GitHub</a>
+      <div class="pub-card pub-card-fig">
+        <img src="images/papers/revise.jpg" alt="REVISE figure" class="pub-fig" />
+        <div class="pub-body">
+          <div class="pub-venue venue-acl">ACL 2025 · Oral</div>
+          <div class="pub-title">REVISE: A Framework for Revising OCRed text in Practical Information Systems with Data Contamination Strategy</div>
+          <div class="pub-authors"><strong>Shim, G.</strong>, Hong, S., &amp; Lim, H.</div>
+          <div class="pub-desc en">
+            OCR errors — from font degradation to complex multi-column layouts — fundamentally compromise downstream Document AI. REVISE addresses this by introducing a comprehensive hierarchical taxonomy of common OCR errors and a synthetic data contamination strategy that injects realistic OCR-like noise at the character, word, and structural level. Trained on these synthetic datasets, the model learns to robustly reconstruct original document structure, significantly improving QA and retrieval accuracy without requiring costly real-error annotations.
+          </div>
+          <div class="pub-desc ko" style="display:none">
+            폰트 열화에서 복잡한 다단 레이아웃까지 다양한 OCR 오류를 포괄하는 계층적 분류 체계를 제안하고, 합성 데이터 오염 전략으로 현실적인 OCR 노이즈를 주입해 문서 원본 구조를 복원하는 프레임워크. 실제 오류 어노테이션 없이도 QA 및 검색 정확도를 유의미하게 개선.
+          </div>
+          <div class="pub-links">
+            <a href="https://github.com/gyuhoshim/revise-ocr-correction" target="_blank">GitHub</a>
+          </div>
         </div>
       </div>
 
-      <div class="pub-card">
-        <div class="pub-venue venue-emnlp">EMNLP 2025 · Oral</div>
-        <div class="pub-title">Benchmark Profiling: Mechanistic Diagnosis of LLM Benchmarks</div>
-        <div class="pub-authors">Kim, D., <strong>Shim, G.</strong>, Chun, Y. C., Kim, M., Park, C., &amp; Lim, H.</div>
-        <div class="pub-desc en">A mechanistic interpretability approach to diagnose and profile LLM benchmark behavior.</div>
-        <div class="pub-desc ko" style="display:none">LLM 벤치마크 행동을 진단하고 프로파일링하는 기계론적 해석 가능성 접근법.</div>
-      </div>
-
-      <div class="pub-card">
-        <div class="pub-venue venue-review">ACL 2026 · Under Review</div>
-        <div class="pub-title">HiKEY: Hierarchical Multimodal Retrieval for Open-Domain Document Question Answering</div>
-        <div class="pub-authors">Shin, J., <strong>Shim, G.</strong>, Park, J., Seo, J., &amp; Lim, H.</div>
-        <div class="pub-desc en">Hierarchical multimodal retrieval system for open-domain document QA.</div>
-        <div class="pub-desc ko" style="display:none">오픈 도메인 문서 QA를 위한 계층적 멀티모달 검색 시스템.</div>
-      </div>
-
-      <div class="pub-card">
-        <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
-        <div class="pub-title">CrossDocVQA: A Page-Grounded Diagnostic Benchmark for Open-Domain Cross-Document Multimodal QA</div>
-        <div class="pub-authors"><strong>Shim, G.</strong>, Shin, J., Kim, D., Seo, J., &amp; Lim, H.</div>
-        <div class="pub-desc en">A diagnostic benchmark for evaluating multimodal QA across multiple documents with page-level grounding.</div>
-        <div class="pub-desc ko" style="display:none">페이지 수준 근거를 통한 멀티모달 크로스 문서 QA 진단 벤치마크.</div>
-        <div class="pub-links">
-          <a href="https://github.com/gyuhoshim/CrossDocVQA" target="_blank">GitHub</a>
+      <div class="pub-card pub-card-fig">
+        <img src="images/papers/benchmark_profiling.jpg" alt="Benchmark Profiling figure" class="pub-fig" />
+        <div class="pub-body">
+          <div class="pub-venue venue-emnlp">EMNLP 2025 · Oral</div>
+          <div class="pub-title">Benchmark Profiling: Mechanistic Diagnosis of LLM Benchmarks</div>
+          <div class="pub-authors">Kim, D., <strong>Shim, G.</strong>, Chun, Y. C., Kim, M., Park, C., &amp; Lim, H.</div>
+          <div class="pub-desc en">
+            Standard benchmark scores mask what abilities a model actually uses. Benchmark Profiling decomposes performance into 10 cognitively grounded abilities — from contextual recall to multi-step reasoning — using gradient-based importance scoring and targeted parameter ablation. The resulting Ability Impact Score (AIS) reveals that most benchmarks require a mixture of abilities, similarly-labeled datasets often rely on distinct ability profiles, and narrow domain fine-tuning yields only modest gains on code benchmarks. Analyzed across three instruction-tuned models and ten benchmarks.
+          </div>
+          <div class="pub-desc ko" style="display:none">
+            표준 벤치마크 점수가 숨기는 실제 모델 능력을 10가지 인지적 능력으로 분해. 그래디언트 기반 중요도 점수와 타겟 파라미터 제거를 통해 Ability Impact Score(AIS) 산출. 대부분의 벤치마크가 복수의 능력을 요구하며, 유사 레이블 데이터셋도 서로 다른 능력 프로파일을 가짐을 발견.
+          </div>
         </div>
       </div>
 
-      <div class="pub-card">
-        <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
-        <div class="pub-title">PILAR: A Page-Grounded Unified Evidence Representation via an Entity-Linked Assertion Graph for Open-Domain QA Agents over Multimodal Document Corpora</div>
-        <div class="pub-authors">Shin, J., <strong>Shim, G.</strong>, Lee, J., &amp; Seo, J.</div>
-        <div class="pub-desc en">Entity-linked assertion graph for unified evidence representation in multimodal document QA agents.</div>
-        <div class="pub-desc ko" style="display:none">멀티모달 문서 QA 에이전트를 위한 엔티티 연결 단언 그래프 기반 통합 근거 표현.</div>
+      <div class="pub-card pub-card-fig">
+        <img src="images/papers/hikey.jpg" alt="HiKEY figure" class="pub-fig" />
+        <div class="pub-body">
+          <div class="pub-venue venue-review">ACL 2026 · Under Review</div>
+          <div class="pub-title">HiKEY: Hierarchical Multimodal Retrieval for Open-Domain Document Question Answering</div>
+          <div class="pub-authors">Shin, J., <strong>Shim, G.</strong>, Park, J., Seo, J., &amp; Lim, H.</div>
+          <div class="pub-desc en">
+            Flat text chunking loses the structural context that makes complex documents interpretable. HiKEY constructs an offline heterogeneous graph from DHP-parsed document hierarchies, then performs (1) hierarchical coarse-to-fine retrieval that rapidly narrows from global routing to local section-level candidates, and (2) an ancestry-aware subgraph assembly that captures cross-section dependencies. Across multi-page ODQA benchmarks, HiKEY outperforms text-based RAG by up to 4.5% and full-page RAG by up to 6.8%, with strong end-to-end EM/ANLS gains.
+          </div>
+          <div class="pub-desc ko" style="display:none">
+            DHP 파싱 기반 오프라인 이종 계층 그래프를 구축하고, 전역 라우팅에서 로컬 섹션 수준 후보로 좁혀가는 계층적 코스-투-파인 검색과 조상 인식 서브그래프 조합을 수행. 텍스트 기반 RAG 대비 최대 4.5%, 전체 페이지 RAG 대비 최대 6.8% 성능 향상.
+          </div>
+        </div>
       </div>
 
-      <div class="pub-card">
-        <div class="pub-venue venue-review">ACL 2026 · Under Review</div>
-        <div class="pub-title">Towards Computational Comprehension: A Non-Anthropocentric Framework for Evaluating LLM Understanding</div>
-        <div class="pub-authors">Kim, D., <strong>Shim, G.</strong>, Kim, M., Park, C., &amp; Lim, H.</div>
-        <div class="pub-desc en">A non-anthropocentric evaluation framework redefining how we measure LLM understanding.</div>
-        <div class="pub-desc ko" style="display:none">LLM 이해도 측정 방식을 재정의하는 비인간 중심 평가 프레임워크.</div>
+      <div class="pub-card pub-card-fig">
+        <img src="images/papers/crossdocvqa.jpg" alt="CrossDocVQA figure" class="pub-fig" />
+        <div class="pub-body">
+          <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
+          <div class="pub-title">CrossDocVQA: A Page-Grounded Diagnostic Benchmark for Open-Domain Cross-Document Multimodal QA</div>
+          <div class="pub-authors"><strong>Shim, G.</strong>, Shin, J., Kim, D., Seo, J., &amp; Lim, H.</div>
+          <div class="pub-desc en">
+            Real-world questions rarely have answers neatly contained in a single document — evidence is often dispersed across tables, figures, and text in multiple PDFs. CrossDocVQA provides a page-grounded diagnostic benchmark specifically targeting this gap: each question requires synthesizing evidence across document boundaries, with supporting pages explicitly annotated. An agent-assisted curation pipeline validates evidence units and assigns page-level grounding. The companion CrossDocRAG baseline integrates document-level priors with page-level retrieval, serving as a reference for future cross-document multimodal reasoning systems.
+          </div>
+          <div class="pub-desc ko" style="display:none">
+            실제 질문은 여러 PDF의 표·그림·텍스트에 흩어진 근거를 종합해야 하는 경우가 많음. CrossDocVQA는 이 갭을 타겟으로 하는 페이지 수준 어노테이션 진단 벤치마크로, 에이전트 보조 큐레이션 파이프라인과 CrossDocRAG 베이스라인을 함께 제공.
+          </div>
+          <div class="pub-links">
+            <a href="https://github.com/gyuhoshim/CrossDocVQA" target="_blank">GitHub</a>
+          </div>
+        </div>
       </div>
 
-      <div class="pub-card">
-        <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
-        <div class="pub-title">Mixture-of-Models: A Loosely-coupled LLM Orchestration Framework for Multi-Domain Task Solving</div>
-        <div class="pub-authors">Hong, S., <strong>Shim, G.</strong>, Eo, S., Kim, J., Lee, J., &amp; Lim, H.</div>
-        <div class="pub-desc en">Loosely-coupled LLM orchestration for solving tasks across multiple domains.</div>
-        <div class="pub-desc ko" style="display:none">다중 도메인 태스크 해결을 위한 느슨하게 결합된 LLM 오케스트레이션 프레임워크.</div>
+      <div class="pub-card pub-card-fig">
+        <img src="images/papers/pilar.jpg" alt="PILAR figure" class="pub-fig" />
+        <div class="pub-body">
+          <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
+          <div class="pub-title">PILAR: A Page-Grounded Unified Evidence Representation via an Entity-Linked Assertion Graph for Open-Domain QA Agents over Multimodal Document Corpora</div>
+          <div class="pub-authors">Shin, J., <strong>Shim, G.</strong>, Lee, J., &amp; Seo, J.</div>
+          <div class="pub-desc en">
+            Retrieved evidence from multimodal documents — sentences, table cells, figure captions — lives in disconnected representational spaces, making it hard for QA agents to reason across them. PILAR maps all evidence types into a unified entity-linked assertion graph with strict page-level provenance. Each fact becomes a node linked by entity relationships, enabling graph-traversal reasoning across cross-page and cross-document evidence. PILAR achieves +1.6 EM over flat retrieval and +5.9 EM on 3-hop questions in a shared-reader evaluation across 4 frameworks and 14 retrieval backends.
+          </div>
+          <div class="pub-desc ko" style="display:none">
+            문장·표 셀·그림 캡션 등 이기종 근거를 페이지 수준 출처가 보존된 통합 엔티티 연결 단언 그래프로 매핑. 그래프 순회 추론으로 크로스 페이지·크로스 문서 근거 처리. 플랫 검색 대비 EM +1.6, 3-홉 질문에서 +5.9 달성.
+          </div>
+        </div>
+      </div>
+
+      <div class="pub-card pub-card-fig">
+        <img src="images/papers/towards_comprehension.jpg" alt="Towards Computational Comprehension" class="pub-fig" />
+        <div class="pub-body">
+          <div class="pub-venue venue-review">ACL 2026 · Under Review</div>
+          <div class="pub-title">Towards Computational Comprehension: A Non-Anthropocentric Framework for Evaluating LLM Understanding</div>
+          <div class="pub-authors">Kim, D., <strong>Shim, G.</strong>, Kim, M., Park, C., &amp; Lim, H.</div>
+          <div class="pub-desc en">
+            Anthropocentric benchmarks — designed around human-centric tasks like reading comprehension and analogical reasoning — may not capture what LLMs genuinely understand. This position paper introduces <em>Computational Comprehension</em> as an alternative: a framework that tests whether a model maintains concept-level invariance under input transformations, probes how subtle contextual shifts affect downstream reasoning, and measures the depth of a model's internal conceptual grounding beyond surface-level pattern matching. The framework proposes three evaluation principles and demonstrates how existing benchmarks inadequately surface these distinctions.
+          </div>
+          <div class="pub-desc ko" style="display:none">
+            인간 중심 벤치마크의 한계를 지적하고 입력 변환 하에서 개념 수준 불변성을 테스트하는 비인간 중심 평가 프레임워크 Computational Comprehension 제안. 표층 패턴 매칭을 넘어 모델의 내부 개념적 근거 깊이를 측정하는 세 가지 평가 원칙 제시.
+          </div>
+        </div>
+      </div>
+
+      <div class="pub-card pub-card-fig">
+        <img src="images/papers/mixture_of_models.jpg" alt="Mixture-of-Models figure" class="pub-fig" />
+        <div class="pub-body">
+          <div class="pub-venue venue-review">ARR 2026 · Under Review</div>
+          <div class="pub-title">Mixture-of-Models: A Loosely-coupled LLM Orchestration Framework for Multi-Domain Task Solving</div>
+          <div class="pub-authors">Hong, S., <strong>Shim, G.</strong>, Eo, S., Kim, J., Lee, J., &amp; Lim, H.</div>
+          <div class="pub-desc en">
+            Specialized LLMs excel within their target domains but degrade sharply on out-of-distribution inputs — and training a single model to cover all domains is resource-prohibitive. MoM proposes a loosely-coupled orchestration approach: a lightweight orchestrator is trained to dynamically route each query to the most suitable specialist LLM from a publicly available pool, using confidence scores as guidance. At inference time, only the selected model runs, making the system both efficient and adaptive. MoM consistently outperforms any individual specialist model in both in-distribution and out-of-distribution scenarios across mathematics, medicine, and legal domains.
+          </div>
+          <div class="pub-desc ko" style="display:none">
+            공개 LLM 풀에서 쿼리별로 가장 적합한 전문 모델을 신뢰도 점수 기반으로 선택하는 경량 오케스트레이터 훈련. 수학·의학·법률 도메인에서 개별 전문 모델 대비 인도메인·아웃오브도메인 모두 일관되게 우수한 성능 달성.
+          </div>
+        </div>
       </div>
 
       <div class="pub-card">
         <div class="pub-venue venue-report">Technical Report · Jan 2026</div>
         <div class="pub-title">VAETKI Technical Report</div>
-        <div class="pub-authors">NC-AI Consortium</div>
-        <div class="pub-desc en">Technical report for the WBL Independent AI Foundation Model project in collaboration with NC AI and ETRI.</div>
-        <div class="pub-desc ko" style="display:none">NC AI 및 ETRI와의 WBL 독립 AI 파운데이션 모델 프로젝트 기술 보고서.</div>
+        <div class="pub-authors">NC-AI Consortium (NC AI · ETRI · Korea University)</div>
+        <div class="pub-desc en">
+          Technical report introducing the VAETKI series of large language models at 100B, 20B, and 7B scales, developed for national data sovereignty and industrial AI transformation. The models use a decoder-only Mixture-of-Experts (MoE) architecture with Multi-Latent Attention (MLA) and Local-Global Interleaving, achieving an 83% reduction in KV cache size and a 40% gain in training efficiency over conventional MLA. Pre-trained on a curated 5-trillion-token corpus and refined through a seven-stage pipeline including Reasoning-centric SFT, High-Quality SFT, and DPO on 8M instruction-tuning triplets. Evaluation on Korean benchmarks (CLIcK, KoBALT) and IFEval demonstrates strong multilingual and instruction-following capabilities.
+        </div>
+        <div class="pub-desc ko" style="display:none">
+          국가 데이터 주권 및 산업 AI 전환을 위한 100B·20B·7B 규모 VAETKI 시리즈 소개. MoE + MLA + Local-Global Interleaving 아키텍처로 KV 캐시 83% 절감, 학습 효율 40% 향상. 5조 토큰 사전학습 및 7단계 후처리 파이프라인 적용. CLIcK·KoBALT·IFEval에서 강력한 한국어·다국어·명령 수행 능력 검증.
+        </div>
       </div>
 
     </div>

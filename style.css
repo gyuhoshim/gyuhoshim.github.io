@@ -255,6 +255,34 @@ section { padding: 5rem 1.5rem; }
 .pub-links { display: flex; gap: 0.8rem; }
 .pub-links a { font-size: 0.82rem; font-weight: 500; }
 
+/* pub card with figure */
+.pub-card-fig {
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+}
+.pub-fig {
+  width: 180px;
+  min-width: 180px;
+  height: 130px;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.pub-body { flex: 1; min-width: 0; }
+.pub-card-fig .pub-venue,
+.pub-card-fig .pub-title,
+.pub-card-fig .pub-authors,
+.pub-card-fig .pub-desc,
+.pub-card-fig .pub-links { display: block; }
+
+@media (max-width: 680px) {
+  .pub-card-fig { flex-direction: column; }
+  .pub-fig { width: 100%; min-width: unset; height: 160px; }
+}
+
 /* ===== PROJECTS ===== */
 .proj-list { display: flex; flex-direction: column; gap: 1.2rem; }
 .proj-card {
