@@ -711,26 +711,51 @@
   (function() {
     var dot = document.getElementById('cursorDot');
     var ring = document.getElementById('cursorRing');
-    if (dot && ring && window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
-      var mx = 0, my = 0, rx = 0, ry = 0;
-      document.addEventListener('mousemove', function(e) { mx = e.clientX; my = e.clientY; });
-      (function loop() {
-        dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-        rx += (mx - rx) * 0.35; ry += (my - ry) * 0.35;
-        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-        requestAnimationFrame(loop);
-      })();
-      document.addEventListener('mouseover', function(e) {
-        if (e.target.closest('a, button, .btn, .chip, .lang-btn, .pub-card, .proj-card, .edu-item, .exp-item, .blog-item')) {
-          document.body.classList.add('cursor-hover');
-        }
-      });
-      document.addEventListener('mouseout', function(e) {
-        if (e.target.closest('a, button, .btn, .chip, .lang-btn, .pub-card, .proj-card, .edu-item, .exp-item, .blog-item')) {
-          document.body.classList.remove('cursor-hover');
-        }
-      });
-    }
+    if (!dot || !ring || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+
+    var mx = 0, my = 0, rx = 0, ry = 0, lastTrail = 0;
+    var TRAIL_COLORS = ['#3b82f6','#6366f1','#818cf8','#a78bfa'];
+
+    document.addEventListener('mousemove', function(e) {
+      mx = e.clientX; my = e.clientY;
+      var now = Date.now();
+      if (now - lastTrail > 28) {
+        lastTrail = now;
+        var t = document.createElement('div');
+        var sz = (3 + Math.random() * 3).toFixed(1);
+        t.style.cssText = 'position:fixed;pointer-events:none;border-radius:50%;z-index:99999;'
+          + 'left:' + mx + 'px;top:' + my + 'px;'
+          + 'width:' + sz + 'px;height:' + sz + 'px;'
+          + 'background:' + TRAIL_COLORS[Math.floor(Math.random() * TRAIL_COLORS.length)] + ';'
+          + 'animation:cursor-trail-fade .5s ease-out forwards;';
+        document.body.appendChild(t);
+        setTimeout(function() { t.parentNode && t.parentNode.removeChild(t); }, 520);
+      }
+    });
+
+    (function loop() {
+      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+      rx += (mx - rx) * 0.10; ry += (my - ry) * 0.10;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(loop);
+    })();
+
+    var sel = 'a,button,.btn,.chip,.lang-btn,.pub-card,.proj-card,.edu-item,.exp-item,.blog-item';
+    document.addEventListener('mouseover', function(e) {
+      if (e.target.closest(sel)) document.body.classList.add('cursor-hover');
+    });
+    document.addEventListener('mouseout', function(e) {
+      if (e.target.closest(sel)) document.body.classList.remove('cursor-hover');
+    });
+
+    document.addEventListener('click', function(e) {
+      var r = document.createElement('div');
+      r.style.cssText = 'position:fixed;pointer-events:none;border-radius:50%;z-index:99998;'
+        + 'left:' + e.clientX + 'px;top:' + e.clientY + 'px;'
+        + 'border:2px solid #6366f1;animation:cursor-ripple .5s ease-out forwards;';
+      document.body.appendChild(r);
+      setTimeout(function() { r.parentNode && r.parentNode.removeChild(r); }, 520);
+    });
   })();
 
   // Smooth scroll
