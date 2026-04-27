@@ -56,6 +56,8 @@
       class="profile-photo"
     />
     <div class="hero-text">
+      <div class="status-badge en">M.S. Candidate · Korea University NLP&amp;AI Lab</div>
+      <div class="status-badge ko" style="display:none">석사과정 · 고려대학교 NLP&amp;AI Lab</div>
       <h1 class="en">Hi, I'm Gyuho Shim 👋</h1>
       <h1 class="ko" style="display:none">안녕하세요, 심규호입니다 👋</h1>
       <p class="tagline en">Multimodal/LLM AI Engineer specializing in document intelligence — building AI systems that are robust, practical, and reliable.</p>
@@ -122,11 +124,52 @@
     <div class="skills-block">
       <h3 class="en">Technical Skills</h3>
       <h3 class="ko" style="display:none">기술 스택</h3>
-      <div class="skill-row"><span class="skill-label">Document AI</span><span class="skill-tags">Document Parsing · Hierarchical Chunking · Layout-aware Processing · Document QA</span></div>
-      <div class="skill-row"><span class="skill-label">Modeling</span><span class="skill-tags">LLM/LVLM Fine-tuning · Hierarchical Retrieval · Knowledge Graphs · Hybrid Neural-Symbolic Reasoning</span></div>
-      <div class="skill-row"><span class="skill-label">Programming</span><span class="skill-tags">Python · SQL · C/C++ · Java</span></div>
-      <div class="skill-row"><span class="skill-label">Frameworks</span><span class="skill-tags">PyTorch · TensorFlow · NumPy · Pandas · Scikit-Learn · LangChain · Linux</span></div>
-      <div class="skill-row"><span class="skill-label">Languages</span><span class="skill-tags">English (Native) · Korean (Native)</span></div>
+      <div class="skill-row">
+        <span class="skill-label">Document AI</span>
+        <div class="skill-chips">
+          <span class="chip">Document Parsing</span>
+          <span class="chip">Hierarchical Chunking</span>
+          <span class="chip">Layout-aware Processing</span>
+          <span class="chip">Document QA</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <span class="skill-label">Modeling</span>
+        <div class="skill-chips">
+          <span class="chip">LLM/LVLM Fine-tuning</span>
+          <span class="chip">Hierarchical Retrieval</span>
+          <span class="chip">Knowledge Graphs</span>
+          <span class="chip">Neural-Symbolic Reasoning</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <span class="skill-label">Programming</span>
+        <div class="skill-chips">
+          <span class="chip">Python</span>
+          <span class="chip">SQL</span>
+          <span class="chip">C/C++</span>
+          <span class="chip">Java</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <span class="skill-label">Frameworks</span>
+        <div class="skill-chips">
+          <span class="chip">PyTorch</span>
+          <span class="chip">TensorFlow</span>
+          <span class="chip">NumPy</span>
+          <span class="chip">Pandas</span>
+          <span class="chip">Scikit-Learn</span>
+          <span class="chip">LangChain</span>
+          <span class="chip">Linux</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <span class="skill-label">Languages</span>
+        <div class="skill-chips">
+          <span class="chip">English (Native)</span>
+          <span class="chip">Korean (Native)</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -602,9 +645,11 @@
           <span class="blog-date en">Apr 2026</span>
           <span class="blog-date ko" style="display:none">2026년 4월</span>
         </div>
-        <a href="blog/training-korean-visual-document-retriever.html" class="blog-title">Training a Korean Visual Document Retriever Model</a>
-        <p class="blog-excerpt en">A full walkthrough of Ko-VDR / KURE-VL — the dual-encoder architecture, 325k-pair data pipeline, GradCache, Matryoshka loss, self-guide filtering, and 4-GPU DDP training.</p>
-        <p class="blog-excerpt ko" style="display:none">Ko-VDR / KURE-VL 전체 파이프라인 — 듀얼 인코더 구조, 32만5천 쌍 데이터 파이프라인, GradCache, Matryoshka 손실, Self-Guide 필터링, 4-GPU DDP 학습까지 상세 설명.</p>
+        <div class="blog-content">
+          <a href="blog/training-korean-visual-document-retriever.html" class="blog-title">Training a Korean Visual Document Retriever Model</a>
+          <p class="blog-excerpt en">A full walkthrough of Ko-VDR / KURE-VL — the dual-encoder architecture, 325k-pair data pipeline, GradCache, Matryoshka loss, self-guide filtering, and 4-GPU DDP training.</p>
+          <p class="blog-excerpt ko" style="display:none">Ko-VDR / KURE-VL 전체 파이프라인 — 듀얼 인코더 구조, 32만5천 쌍 데이터 파이프라인, GradCache, Matryoshka 손실, Self-Guide 필터링, 4-GPU DDP 학습까지 상세 설명.</p>
+        </div>
       </li>
 
       <li class="blog-item">
@@ -612,9 +657,11 @@
           <span class="blog-date en">Apr 2026</span>
           <span class="blog-date ko" style="display:none">2026년 4월</span>
         </div>
-        <a href="blog/hierarchical-document-parsing.html" class="blog-title">Understanding Hierarchical Document Parsing for RAG Systems</a>
-        <p class="blog-excerpt en">Why flat chunking breaks complex documents — and how hierarchy-aware parsing unlocks better retrieval and reasoning.</p>
-        <p class="blog-excerpt ko" style="display:none">플랫 청킹이 복잡한 문서를 망가뜨리는 이유, 그리고 계층 인식 파싱이 더 나은 검색과 추론을 가능하게 하는 방법.</p>
+        <div class="blog-content">
+          <a href="blog/hierarchical-document-parsing.html" class="blog-title">Understanding Hierarchical Document Parsing for RAG Systems</a>
+          <p class="blog-excerpt en">Why flat chunking breaks complex documents — and how hierarchy-aware parsing unlocks better retrieval and reasoning.</p>
+          <p class="blog-excerpt ko" style="display:none">플랫 청킹이 복잡한 문서를 망가뜨리는 이유, 그리고 계층 인식 파싱이 더 나은 검색과 추론을 가능하게 하는 방법.</p>
+        </div>
       </li>
 
       <li class="blog-item">
@@ -622,9 +669,11 @@
           <span class="blog-date en">Mar 2026</span>
           <span class="blog-date ko" style="display:none">2026년 3월</span>
         </div>
-        <a href="blog/ocr-errors-document-ai.html" class="blog-title">Why OCR Errors Matter: Building Robust Document AI Pipelines</a>
-        <p class="blog-excerpt en">A look at how OCR noise propagates through Document AI pipelines and what systematic error correction can do about it.</p>
-        <p class="blog-excerpt ko" style="display:none">OCR 노이즈가 Document AI 파이프라인에 어떻게 전파되는지, 그리고 체계적인 오류 수정이 이를 어떻게 해결하는지 살펴봅니다.</p>
+        <div class="blog-content">
+          <a href="blog/ocr-errors-document-ai.html" class="blog-title">Why OCR Errors Matter: Building Robust Document AI Pipelines</a>
+          <p class="blog-excerpt en">A look at how OCR noise propagates through Document AI pipelines and what systematic error correction can do about it.</p>
+          <p class="blog-excerpt ko" style="display:none">OCR 노이즈가 Document AI 파이프라인에 어떻게 전파되는지, 그리고 체계적인 오류 수정이 이를 어떻게 해결하는지 살펴봅니다.</p>
+        </div>
       </li>
 
     </ul>
