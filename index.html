@@ -710,22 +710,17 @@
   (function() {
     var dot = document.getElementById('cursorDot');
     if (!dot || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
-    var lastTrail = 0;
     document.addEventListener('mousemove', function(e) {
       dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
-      var now = Date.now();
-      if (now - lastTrail > 30) {
-        lastTrail = now;
-        var t = document.createElement('div');
-        var sz = (3 + Math.random() * 3).toFixed(1);
-        t.style.cssText = 'position:fixed;pointer-events:none;border-radius:50%;z-index:99999;'
-          + 'left:' + e.clientX + 'px;top:' + e.clientY + 'px;'
-          + 'width:' + sz + 'px;height:' + sz + 'px;'
-          + 'background:var(--accent);'
-          + 'animation:cursor-trail-fade .6s ease-out forwards;';
-        document.body.appendChild(t);
-        setTimeout(function() { t.parentNode && t.parentNode.removeChild(t); }, 620);
-      }
+      var t = document.createElement('div');
+      var sz = (2 + Math.random() * 3).toFixed(1);
+      t.style.cssText = 'position:fixed;pointer-events:none;border-radius:50%;z-index:99999;'
+        + 'left:' + e.clientX + 'px;top:' + e.clientY + 'px;'
+        + 'width:' + sz + 'px;height:' + sz + 'px;'
+        + 'background:var(--accent);'
+        + 'animation:cursor-trail-fade 1.3s ease-in forwards;';
+      document.body.appendChild(t);
+      setTimeout(function() { t.parentNode && t.parentNode.removeChild(t); }, 1320);
     });
     var sel = 'a,button,.btn,.chip,.lang-btn,.pub-card,.proj-card,.edu-item,.exp-item,.blog-item';
     document.addEventListener('mouseover', function(e) {

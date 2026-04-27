@@ -10,18 +10,18 @@
     pointer-events: none;
     z-index: 100001;
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 10px rgba(59,130,246,.55);
-    transition: width .2s, height .2s, box-shadow .2s;
+    transition: width .2s, height .2s, background .2s;
   }
 
   body.cursor-hover .cursor-dot {
-    width: 8px; height: 8px;
-    box-shadow: 0 0 14px rgba(59,130,246,.75);
+    width: 10px; height: 10px;
+    background: var(--accent-dark);
   }
 
   @keyframes cursor-trail-fade {
-    from { opacity: .5; transform: translate(-50%,-50%) scale(1); }
-    to   { opacity: 0;  transform: translate(-50%,-50%) scale(0); }
+    0%   { opacity: .4; transform: translate(-50%,-50%) scale(1); }
+    60%  { opacity: .15; }
+    100% { opacity: 0;  transform: translate(-50%,-50%) scale(0); }
   }
 }
 
