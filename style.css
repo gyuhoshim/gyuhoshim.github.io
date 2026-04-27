@@ -1,3 +1,39 @@
+/* ===== CUSTOM CURSOR ===== */
+@media (hover: hover) and (pointer: fine) {
+  * { cursor: none !important; }
+  .cursor-dot {
+    position: fixed; top: 0; left: 0;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100001;
+    transform: translate(-50%, -50%);
+    transition: width .2s, height .2s, background .2s;
+  }
+  .cursor-ring {
+    position: fixed; top: 0; left: 0;
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 100000;
+    transform: translate(-50%, -50%);
+    transition: width .3s, height .3s, border-color .3s, background .3s;
+    opacity: .5;
+  }
+  body.cursor-hover .cursor-dot {
+    width: 10px; height: 10px;
+    background: var(--accent-dark);
+  }
+  body.cursor-hover .cursor-ring {
+    width: 52px; height: 52px;
+    border-color: var(--accent-dark);
+    background: rgba(59,130,246,.08);
+    opacity: .4;
+  }
+}
+
 /* ===== RESET & BASE ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
