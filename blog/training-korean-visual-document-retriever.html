@@ -45,7 +45,7 @@
       Korean documents add another layer of difficulty: Korean-language corpora are severely underrepresented in vision-language retrieval research. Most public training sets are English-only, and models trained on them degrade sharply on Korean text rendered inside page images.
     </p>
     <p>
-      This post documents <strong>Ko-VDR</strong> (also called <strong>KURE-VL — Korean-English Unified Retriever, Vision-Language</strong>): a multimodal document retrieval model that takes a text query and returns the correct document page image, trained on a mixed Korean-English corpus of 325k pairs. I'll walk through the full pipeline — architecture, data, loss stack, training tricks, and evaluation — with as much detail as I used when actually building it.
+      This post documents <strong>Ko-VDR</strong>: a multimodal document retrieval model that takes a text query and returns the correct document page image, trained on a mixed Korean-English corpus of 325k pairs. I'll walk through the full pipeline — architecture, data, loss stack, training tricks, and evaluation — with as much detail as I used when actually building it.
     </p>
 
     <h2>1. The Problem: Cross-Modal Document Retrieval</h2>
