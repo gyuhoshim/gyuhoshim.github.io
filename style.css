@@ -241,6 +241,7 @@ section { padding: 5rem 1.5rem; }
 .venue-emnlp { background: #d1fae5; color: #065f46; }
 .venue-review{ background: #fef3c7; color: #92400e; }
 .venue-report{ background: #f3e8ff; color: #6b21a8; }
+.venue-hclt  { background: #ffe4e6; color: #9f1239; }
 
 .pub-title {
   font-weight: 600;
