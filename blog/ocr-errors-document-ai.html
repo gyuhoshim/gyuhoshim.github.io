@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why OCR Errors Matter: Building Robust Document AI Pipelines — Gyuho Shim</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <span class="nav-name">Gyuho Shim</span>
+    <ul class="nav-links">
+      <li><a href="../index.html#home">Home</a></li>
+      <li><a href="../index.html#publications">Publications</a></li>
+      <li><a href="../index.html#projects">Projects</a></li>
+      <li><a href="../index.html#blog">Blog</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== POST HEADER ===== -->
+<div class="post-header">
+  <div class="container">
+    <a href="../index.html#blog" class="post-back">Back to Blog</a>
+    <div class="post-tag">Document AI · OCR</div>
+    <h1 class="post-title">Why OCR Errors Matter: Building Robust Document AI Pipelines</h1>
+    <p class="post-date">March 2026 · Gyuho Shim</p>
+  </div>
+</div>
+
+<!-- ===== POST BODY ===== -->
+<div class="post-body">
+  <div class="container">
+
+    <p>
+      Downstream Document AI — QA, summarization, retrieval — is built on text. But that text usually comes from an OCR engine, and OCR engines make mistakes. The question is not whether errors exist; it is what kind, how often, and how much they hurt. The answer, at least in real-world document corpora, is: <em>a lot</em>.
+    </p>
+
+    <p>
+      This post is about what we learned building <strong>REVISE</strong>, a framework for OCR error correction in practical information systems, which appeared at ACL 2025.
+    </p>
+
+    <h2>The problem is systematic, not random</h2>
+
+    <p>
+      Random noise is easy to handle — embed the noisy text and the embedder averages it out. OCR errors are not random. They are <strong>systematic and correlated</strong> with document properties:
+    </p>
+
+    <ul>
+      <li><strong>Font degradation.</strong> Old scanned documents with worn ink produce consistent character-level substitutions: <code>rn</code> → <code>m</code>, <code>l</code> → <code>1</code>, <code>O</code> → <code>0</code>. These are predictable per-font, not random.</li>
+      <li><strong>Multi-column layout errors.</strong> OCR engines optimized for single-column text misread reading order in two-column layouts, producing interleaved paragraphs that are syntactically malformed.</li>
+      <li><strong>Table cell confusion.</strong> Cell boundary detection fails on borderless or lightly-bordered tables, merging adjacent cells or splitting single cells across rows.</li>
+      <li><strong>Structural markers.</strong> Section headings, footnote markers, and figure captions are often dropped or merged into body text.</li>
+    </ul>
+
+    <p>
+      Each error type propagates differently. Character-level errors corrupt embeddings locally but can be smoothed by robust tokenizers. Layout errors corrupt paragraph structure, which breaks chunking. Structural marker loss corrupts the document hierarchy, which breaks retrieval routing.
+    </p>
+
+    <h2>Building a taxonomy first</h2>
+
+    <p>
+      Before building a correction model, we needed to know what we were correcting. We constructed a <strong>hierarchical taxonomy</strong> of OCR errors with three levels:
+    </p>
+
+    <ol>
+      <li><strong>Character-level:</strong> substitution, insertion, deletion, transposition.</li>
+      <li><strong>Word-level:</strong> merged words, split words, hyphenation artifacts.</li>
+      <li><strong>Structural-level:</strong> reading order, table structure, heading/body confusion.</li>
+    </ol>
+
+    <p>
+      This taxonomy matters because correction strategies differ by level. Character errors can be addressed with a seq2seq model trained on character perturbations. Structural errors require layout-aware modeling that understands spatial position, not just token sequence.
+    </p>
+
+    <h2>The synthetic data contamination strategy</h2>
+
+    <p>
+      Collecting real OCR errors with ground-truth corrections is expensive — you need the original clean document and its OCR output, annotated pair-by-pair. We bypassed this with a <strong>synthetic contamination strategy</strong>: take a clean document, inject OCR-like noise programmatically, and train the correction model on (noisy, clean) pairs.
+    </p>
+
+    <p>
+      The noise injection pipeline applies each error type in the taxonomy with calibrated probability and severity, drawn from distributions estimated on a small set of real OCR outputs. The result is synthetic training data that closely matches the error distribution of real scanned documents without requiring large-scale annotation.
+    </p>
+
+    <blockquote>
+      The key insight: you do not need to know which characters the OCR got wrong. You need to match the <em>statistical profile</em> of errors that OCR produces on documents of a given type. Synthetic contamination is a tractable proxy for this.
+    </blockquote>
+
+    <h2>What correction buys downstream</h2>
+
+    <p>
+      The payoff is in downstream tasks. We measured QA accuracy and retrieval precision on documents corrected by REVISE vs. raw OCR output. Results on the evaluation set:
+    </p>
+
+    <ul>
+      <li>QA accuracy improved by <strong>+5–8%</strong> on documents with heavy font degradation.</li>
+      <li>Retrieval precision (top-5) improved by <strong>+3–6%</strong> on multi-column documents.</li>
+      <li>The gain was largest on questions that required reading across a structural boundary (e.g., combining a table row with a paragraph in the same section).</li>
+    </ul>
+
+    <p>
+      Notably, correction at the character level alone did not produce the full gain. Structural correction — recovering reading order and table cell boundaries — was responsible for roughly half the downstream improvement.
+    </p>
+
+    <h2>Practical lessons</h2>
+
+    <ul>
+      <li><strong>Run OCR quality diagnostics before building.</strong> Measure error rates by document type in your corpus. You may find that 20% of documents account for 80% of errors.</li>
+      <li><strong>Correct before chunking, not after.</strong> Chunking a structurally corrupted document produces corrupted chunks that no amount of retrieval tuning can fix.</li>
+      <li><strong>Synthetic contamination is a viable alternative to annotation</strong> if you can characterize your OCR error distribution from a small sample of real documents.</li>
+      <li><strong>Structural errors are the silent killer.</strong> Character errors are visible and easy to notice; structural errors are invisible until your retrieval pipeline mysteriously underperforms.</li>
+    </ul>
+
+    <div class="post-footer">
+      <a href="../index.html#blog" class="post-footer-back btn btn-outline">← All Posts</a>
+      <a href="hierarchical-document-parsing.html" class="post-footer-back btn btn-outline">Next: Hierarchical Document Parsing →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>© 2026 Gyuho Shim. All rights reserved.</p>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training a Korean Visual Document Retriever Model — Gyuho Shim</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <span class="nav-name">Gyuho Shim</span>
+    <ul class="nav-links">
+      <li><a href="../index.html#home">Home</a></li>
+      <li><a href="../index.html#publications">Publications</a></li>
+      <li><a href="../index.html#projects">Projects</a></li>
+      <li><a href="../index.html#blog">Blog</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== POST HEADER ===== -->
+<div class="post-header">
+  <div class="container">
+    <a href="../index.html#blog" class="post-back">Back to Blog</a>
+    <div class="post-tag">Document AI · Multimodal Retrieval · Korean NLP</div>
+    <h1 class="post-title">Training a Korean Visual Document Retriever Model</h1>
+    <p class="post-date">April 2026 · Gyuho Shim</p>
+  </div>
+</div>
+
+<!-- ===== POST BODY ===== -->
+<div class="post-body">
+  <div class="container">
+
+    <p>
+      Most retrieval systems work on text. You embed a query, embed a corpus of text chunks, and find the nearest neighbors. But real documents — government forms, financial reports, textbooks, product manuals — are not plain text. They are rendered pages: tables with borders, multi-column layouts, figures, scanned stamps, and handwritten annotations. When you run OCR on these, you lose spatial structure. When you throw away the image entirely, you lose everything the layout communicates.
+    </p>
+    <p>
+      Korean documents add another layer of difficulty: Korean-language corpora are severely underrepresented in vision-language retrieval research. Most public training sets are English-only, and models trained on them degrade sharply on Korean text rendered inside page images.
+    </p>
+    <p>
+      This post documents <strong>Ko-VDR</strong> (also called <strong>KURE-VL — Korean-English Unified Retriever, Vision-Language</strong>): a multimodal document retrieval model that takes a text query and returns the correct document page image, trained on a mixed Korean-English corpus of 325k pairs. I'll walk through the full pipeline — architecture, data, loss stack, training tricks, and evaluation — with as much detail as I used when actually building it.
+    </p>
+
+    <h2>1. The Problem: Cross-Modal Document Retrieval</h2>
+
+    <p>
+      The task is simple to state. Given a text query — "What is the refund policy?" — return the page image from a corpus of PDFs that answers it. No OCR, no text extraction, no chunking. The model must understand both the natural language query and the visual content of the document page.
+    </p>
+    <p>
+      The standard solution is a <strong>dual-encoder (bi-encoder)</strong> retriever:
+    </p>
+    <pre><code>Text Query  ──[Encoder]──►  query embedding  ─┐
+                                               ├─► cosine_sim → rank → retrieve
+Doc Image   ──[Encoder]──►  doc   embedding  ─┘</code></pre>
+    <p>
+      Both the query and each document page are mapped into the same embedding space — a list of floating-point numbers. Documents whose vectors point in the same direction as the query vector are considered relevant. At inference time, all document embeddings are pre-computed offline and stored in a FAISS index. Retrieval is then just an approximate nearest-neighbor search — fast regardless of corpus size.
+    </p>
+    <p>
+      The challenge is teaching the encoder that the query "refund policy" and a specific page image containing "환불 정책" (Korean for "refund policy") in a table are semantically equivalent. That is what training is for.
+    </p>
+
+    <h2>2. Model Architecture</h2>
+
+    <h3>2.1 Base Model: Qwen3-VL-Embedding-2B</h3>
+    <p>
+      The backbone is <code>Qwen/Qwen3-VL-Embedding-2B</code>, a 2B-parameter vision-language model designed specifically for embedding tasks. It is a decoder-only transformer (causal LM) that processes interleaved sequences of text tokens and visual patch tokens.
+    </p>
+    <p>
+      When a document page image is fed in, the VLM processor divides it into 28×28-pixel patches, encodes each patch into a vector via a small vision encoder, and inserts the resulting patch tokens into the same sequence as the text tokens. Self-attention then runs over the entire mixed sequence — every text token attends to every image patch, and vice versa. This cross-modal attention is what allows the model to relate "refund policy" in the query to visual tokens in the relevant table region.
+    </p>
+    <p>
+      The final embedding is extracted via <strong>EOS token pooling</strong> — the hidden state at the last non-padding token position:
+    </p>
+    <pre><code>sentence_embedding = token_embeddings[arange, last_non_padding_token_idx]</code></pre>
+    <p>
+      This gives a single 4096-dimensional vector per input. The model is wrapped in a <code>SentenceTransformer</code> as a two-module sequential:
+    </p>
+    <pre><code>model[0] = Transformer(Qwen3-VLModel)   # → token_embeddings  (B, seq_len, 4096)
+model[1] = Pooling(...)                 # → sentence_embedding (B, 4096)  [EOS token]</code></pre>
+    <p>
+      One important flag: <code>model[0].unpad_inputs = False</code>. Qwen3-VL uses visual positional embeddings that break when Flash Attention's variable-length unpacking mode is active. This flag is non-obvious and easy to miss; without it the training run produces silently incorrect embeddings.
+    </p>
+    <p>Key model configuration:</p>
+    <pre><code>model = SentenceTransformer("Qwen/Qwen3-VL-Embedding-2B",
+    model_kwargs={
+        "attn_implementation": "flash_attention_2",
+        "torch_dtype": torch.bfloat16
+    },
+    processor_kwargs={
+        "max_pixels": 1280 * 28 * 28,
+        "min_pixels": 4 * 28 * 28
+    }
+)
+model[0].unpad_inputs = False</code></pre>
+
+    <h3>2.2 LoRA Fine-Tuning</h3>
+    <p>
+      Qwen3-VL-Embedding-2B has ~2 billion parameters. Full fine-tuning requires ~16 GB of optimizer state alone (Adam stores two running averages per parameter). Instead we use <strong>LoRA (Low-Rank Adaptation)</strong>: freeze the original weights and inject small trainable matrices into the attention and FFN projections.
+    </p>
+    <p>
+      LoRA replaces each weight update <code>ΔW</code> with a low-rank factorization <code>B·A</code>, where <code>A ∈ ℝ^{r×d_in}</code> and <code>B ∈ ℝ^{d_out×r}</code>. With <code>r=32</code>, only ~1.5% of parameters are trained, reducing optimizer state from ~16 GB to ~240 MB.
+    </p>
+    <pre><code>lora_cfg = LoraConfig(
+    r=32, lora_alpha=32,
+    dropout=0.0, bias="none",
+    task_type="FEATURE_EXTRACTION",
+    target_modules=["q_proj","k_proj","v_proj","up_proj","down_proj","gate_proj"]
+)
+model.add_adapter(lora_cfg)
+# freeze everything that isn't LoRA
+for name, param in inner.named_parameters():
+    if "lora_" not in name.lower():
+        param.requires_grad = False</code></pre>
+    <p>
+      Critically, <strong>the vision encoder is intentionally frozen</strong>. LoRA is only applied to the LLM backbone's attention and feed-forward layers. The visual feature extractor has a different module naming convention, which naturally excludes it from the LoRA target modules, and keeping it frozen stabilizes training significantly.
+    </p>
+
+    <h2>3. Dataset and Data Pipeline</h2>
+
+    <h3>3.1 Training Data Sources</h3>
+    <p>
+      The training corpus is a mixed Korean-English dataset of 325,023 pairs built from four sources:
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Source</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Images</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Language</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">colpali</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">~118k</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">English</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">vidore/colpali_train_set</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">llamaindex</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">~54k</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">English</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">VDR evaluation set</td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">kovdr_pub</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">~7.5k</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Korean</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Korean VDR public release</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">kovdr_priv</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">~28k</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Korean</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Korean VDR private; gated redistribution</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      <strong>Total: 325,023 training rows · 207,522 unique images · ~74 GB.</strong> Each row has one anchor (text query), one positive (matching page image path), and seven hard negative image paths. The Korean and English data are intentionally mixed within the same corpus rather than kept separate — this cross-lingual mixing is what drives the model's ability to match English queries against Korean document pages and vice versa.
+    </p>
+
+    <h3>3.2 Stage 1 — Image Extraction</h3>
+    <p>
+      All four source datasets are HuggingFace Arrow datasets containing PIL images. Decoding each image to PIL and re-encoding is ~100× slower than copying the raw compressed bytes directly:
+    </p>
+    <pre><code>ds = ds.cast_column("image", HFImage(decode=False))  # raw bytes, no PIL decode
+img_bytes = img.get("bytes")
+out_path.write_bytes(img_bytes)                       # ~100× faster</code></pre>
+    <p>
+      JPEG sources are written as JPEG at quality 95 (perceptually lossless for document scans); PNG sources are written as PNG. The pipeline is resume-friendly — it skips already-extracted files — which matters when extraction runs over 74 GB of data. The output is a pre-mining dataset of ~325k rows with schema <code>(anchor, positive, source, doc_id)</code>.
+    </p>
+
+    <h3>3.3 Stage 2 — Hard Negative Mining</h3>
+    <p>
+      Random negatives are easy for the model to reject — it quickly learns to separate completely unrelated queries from documents. <strong>Hard negatives</strong> are semantically similar but incorrect documents: pages that look like they could answer the query but don't. Training on these pushes the model to learn fine-grained distinctions.
+    </p>
+    <p>
+      We mine hard negatives using a <em>larger</em> model than the one we're training: <code>Qwen/Qwen3-VL-Embedding-8B</code>. Better embeddings from the 8B model → higher quality negatives for the 2B model. The mining procedure:
+    </p>
+    <ol>
+      <li>Embed all 207,522 unique document page images with the 8B model into a FAISS index.</li>
+      <li>For each query, retrieve the top-K nearest document images.</li>
+      <li>Filter candidates: keep only those where <code>s_pos − s_neg ≥ 0.05</code> (absolute margin) — negatives that are within 0.05 cosine similarity of the positive are discarded as likely false negatives.</li>
+      <li>Select the top 7 remaining candidates as hard negatives.</li>
+    </ol>
+    <pre><code># absolute_margin filter: discard negatives within `margin` of positive
+removed = scores + absolute_margin > max_positive_scores</code></pre>
+    <p>
+      Mining runs on GPUs 4–7 in a multiprocess pool, with <code>faiss_batch_size=16384</code> tuned for A6000 48GB cards. Output is streamed to JSONL first (to avoid memory spikes), then saved as a multi-shard HuggingFace dataset (50k rows per shard). The final dataset is uploaded to the Hub with the corpus and train splits kept separate to avoid redundant image storage.
+    </p>
+
+    <h2>4. The Loss Stack</h2>
+
+    <p>
+      The full loss is a three-layer nested structure:
+    </p>
+    <pre><code>MatryoshkaLoss
+  └── SelfGuideCachedMultipleNegativesRankingLoss  (custom)
+        └── CachedMultipleNegativesRankingLoss  (upstream)</code></pre>
+    <p>
+      Each layer addresses a distinct problem. Let me unpack them bottom-up.
+    </p>
+
+    <h3>4.1 InfoNCE: The Foundation</h3>
+    <p>
+      The core training signal is <strong>InfoNCE</strong> (also called MultipleNegativesRankingLoss in sentence-transformers). Given a batch of N (query, positive document) pairs, every other document in the batch becomes a negative for each query:
+    </p>
+    <pre><code>L_i = -log [ exp(s_pos × scale) / Σ_j exp(s_ij × scale) ]
+    = -(positive_score − logsumexp(all_scores))</code></pre>
+    <p>
+      With <code>scale=20.0</code> (the inverse temperature <code>1/τ</code>) and batch size 128, each query trains against 127 negatives simultaneously. The loss is simply cross-entropy: the model must assign the highest probability to the diagonal of the N×N similarity matrix.
+    </p>
+    <p>
+      More negatives per query = harder task = stronger model. Everything else in this system is a technique to increase the effective number of negatives while staying within hardware limits.
+    </p>
+
+    <h3>4.2 GradCache: The 3-Phase Memory Trick</h3>
+    <p>
+      To compute InfoNCE, <em>all N embeddings must be in GPU memory at once</em> to build the N×N similarity matrix. For N=128 document page images, each generating up to 1280 visual patch tokens × 4096 dimensions, this is gigabytes of intermediate activation tensors — the GPU runs out of memory.
+    </p>
+    <p>
+      <strong>GradCache</strong> (Gao et al. 2021) solves this by decoupling the embedding step from the loss step. It runs in three phases:
+    </p>
+    <p><strong>Phase 1 — Embed everything in mini-batches, no gradient tracking:</strong></p>
+    <pre><code>for mini_batch in split_into_chunks(full_batch, size=4):
+    with torch.no_grad():             # don't build computation graph
+        emb = model(mini_batch)       # shape: [4, 4096]
+        emb = emb.detach()            # discard graph, keep numbers
+        cache.append(emb.requires_grad_(True))  # make artificial leaf</code></pre>
+    <p>
+      No graph = no activation memory overhead. We hold only 4 samples' worth of tensors at a time, discarding them after each chunk. The output is 128 cached embedding vectors that, after <code>.detach().requires_grad_(True)</code>, become artificial leaf nodes — they have a <code>.grad</code> slot but no connection to the model weights.
+    </p>
+    <p><strong>Phase 2 — Compute the full loss on cached embeddings, backward to fill embedding gradients:</strong></p>
+    <pre><code>loss = InfoNCE(all_cached_embeddings)  # full 128×128 matrix
+loss.backward()                         # fills embedding.grad = ∂L/∂embedding</code></pre>
+    <p>
+      The model is not called here — only the cached vectors are used. No activation graphs from the model exist in memory. The 128×128 similarity matrix is unavoidable (it is the loss), but everything else is minimal.
+    </p>
+    <p><strong>Phase 3 — Re-embed each mini-batch with gradients, chain via dot-product surrogate:</strong></p>
+    <pre><code>for mini_batch, grad_slice in zip(chunks, grad_slices):
+    emb = model(mini_batch)                     # build graph for 4 samples
+    surrogate = (emb * grad_slice).sum()        # dot product shortcut
+    surrogate.backward()                        # ∂L/∂weights accumulated</code></pre>
+    <p>
+      The dot product <code>(re_embedding × ∂L/∂embedding).sum()</code> is a mathematical surrogate: when differentiated w.r.t. the model weights, it produces the exact same gradient as running the full loss through the full 128-sample graph — but only 4 samples' activations exist in memory at any moment.
+    </p>
+    <p>
+      Memory footprint comparison:
+    </p>
+    <pre><code>                Model     Activation    Similarity
+                weights   graph         matrix
+                ───────   ──────────    ──────────
+Naïve:          fixed     128 samples   128×128   ← OOM
+GradCache Ph1:  fixed     4 samples     none      ← tiny
+GradCache Ph2:  fixed     none          128×128   ← moderate
+GradCache Ph3:  fixed     4 samples     none      ← tiny</code></pre>
+    <p>
+      Net result: exact gradients of a 128-sample training step, while never holding more than 4 samples' computation graph in memory at once. In the code: <code>per_device_train_batch_size=128</code> (the logical batch), <code>mini_batch_size=4</code> (the GradCache chunk for embedding phases only).
+    </p>
+
+    <h3>4.3 RandContext: Keeping Phases 1 and 3 Identical</h3>
+    <p>
+      Phase 1 and Phase 3 both call <code>model(mini_batch)</code>. If dropout uses different random masks between the two calls, the re-embedded vectors in Phase 3 differ from those cached in Phase 1, making the dot-product surrogate mathematically invalid.
+    </p>
+    <p>
+      <code>RandContext</code> fixes this by snapshotting the complete random number generator state (CPU + every GPU) before Phase 1, then replaying it in Phase 3:
+    </p>
+    <pre><code>rand_state = RandContext(*inputs)    # save RNG state
+# Phase 1 runs with dropout mask A...
+with rand_state:                     # rewind to saved state
+    re_embed(...)                    # produces bit-for-bit identical output</code></pre>
+    <p>
+      One subtle point: the RandContext is created <em>after</em> entering the gradient context, so the saved state exactly matches the state Phase 3 will replay — including the gradient-related RNG state differences between <code>no_grad</code> and <code>with_grad</code> modes.
+    </p>
+
+    <h3>4.4 Self-Guide Filter: Removing False Negatives</h3>
+    <p>
+      In-batch negatives assume that any document which isn't the labeled positive is irrelevant. But in a batch of 128 document pages, there may be pages that also answer the query — they're labeled as negatives only because the dataset has one positive per query. Penalizing a model for ranking these highly sends the wrong training signal.
+    </p>
+    <p>
+      The <strong>Self-Guide Filter</strong> (from the Qwen3-Embedding paper) masks out suspiciously relevant negatives before the softmax:
+    </p>
+    <pre><code># For each query qᵢ with positive dᵢ:
+threshold = s(qᵢ, dᵢ) - self_guide_margin   # raw cosine, stop-grad
+
+# mask[i,j] = True iff s(qᵢ, dⱼ) > threshold
+self_guide_mask = raw_q2d > threshold
+self_guide_mask[row_indices, local_batch] = False  # never mask the true positive
+
+# Apply after temperature scaling: masked cells contribute 0 to softmax
+sim_matrices["query_to_doc"].masked_fill_(self_guide_mask, float("-inf"))</code></pre>
+    <p>
+      With <code>self_guide_margin = -0.1</code> (the Qwen3 default), the threshold becomes <code>s_pos + 0.1</code>. A negative is masked only when it scores <em>more than 0.1 above</em> the positive — extremely conservative. Only the most obvious false negatives are removed. The threshold is computed on raw cosine similarities (before temperature scaling) to keep its interpretation consistent with the paper's formulation.
+    </p>
+
+    <h3>4.5 Matryoshka Loss: Seven Embedding Sizes for the Price of One</h3>
+    <p>
+      A 4096-dim embedding is expressive but slow to search in production. You might want 256-dim for a latency-sensitive deployment. Retraining the model at each desired size is expensive.
+    </p>
+    <p>
+      <strong>Matryoshka Representation Learning</strong> (Kusupati et al. 2022) trains the model so that the first K dimensions alone form a useful embedding for any K in a predefined set. The first 128 dimensions encode the most critical information; subsequent dimensions encode progressively finer details.
+    </p>
+    <p>
+      Implementation: after computing full 4096-dim embeddings, slice and re-normalize at each target dimension and compute InfoNCE at each size:
+    </p>
+    <pre><code>for dim in [2048, 1536, 1024, 768, 512, 256, 128]:
+    truncated = F.normalize(embeddings[:, :dim], dim=-1)
+    loss += InfoNCE(truncated)</code></pre>
+    <p>
+      The gradient of <code>F.normalize</code> is <code>(I − x̂x̂ᵀ) / ||x||</code>, which flows back cleanly through the slice. Earlier prefix dimensions receive gradient contributions from all 7 loss terms; later dimensions receive fewer. The model is thus incentivized to pack the most discriminative information into the first coordinates.
+    </p>
+    <p>
+      With GradCache, the embeddings are computed once in Phase 1. <code>CachedLossDecorator</code> then runs the Matryoshka loop on the cached vectors — no re-running the model for each dimension. Matryoshka adds 7 cheap matrix operations, not 7 forward passes.
+    </p>
+    <p>Ko-VDR's Matryoshka dimensions and weights:</p>
+    <pre><code>dims    = [2048, 1536, 1024, 768, 512, 256, 128]
+weights = [1.0,  1.0,  1.0, 1.0, 1.0, 1.0, 1.0]  # uniform</code></pre>
+
+    <h2>5. Training Configuration</h2>
+
+    <h3>5.1 Optimization Hyperparameters</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Parameter</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Epochs</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">1</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Learning rate</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">2e-5</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Batch size (per device)</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">128</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">GradCache mini-batch size</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">4</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Warmup ratio</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.1</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Max grad norm</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">1.0</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Precision</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">bfloat16</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Gradient checkpointing</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">True</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Eval frequency</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Every 5% of total steps + on start</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">InfoNCE scale (temperature)</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">20.0</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Self-guide margin</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">-0.1</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.2 Batch Construction</h3>
+    <p>
+      Two custom batch samplers are used:
+    </p>
+    <ul>
+      <li><strong>NoDuplicatesBatchSampler:</strong> Greedily fills each batch so that no document appears twice. A duplicate document occupying two slots in the 128×128 matrix wastes a negative slot — the model trivially identifies the duplicate. The sampler tracks seen document IDs and skips repeats.</li>
+      <li><strong>ProportionalBatchSampler:</strong> For multi-dataset training, each batch is drawn from a single sub-dataset (either colpali/llamaindex English or kovdr Korean). This prevents the InfoNCE denominator from mixing English text document images with Korean ones in the same softmax, which would be spurious cross-modality negatives.</li>
+    </ul>
+
+    <h3>5.3 Multi-GPU Training with DDP</h3>
+    <p>
+      Training runs on 4 GPUs via <code>torchrun</code> with NCCL backend. With <code>gather_across_devices=False</code> (our config), each GPU processes its own batch of 128 independently — each query sees 127 negatives. The gradients are averaged across GPUs via AllReduce after each step, equivalent to running 4 sequential batches of 128 on a single GPU. (With <code>gather_across_devices=True</code>, embeddings are shared via AllGather before loss computation, giving 511 negatives per query, but at significant communication overhead — not used here.)
+    </p>
+    <p>
+      Several DDP defaults silently break with this setup and are hardcoded in <code>VLMRetrieverTrainingArguments</code>:
+    </p>
+    <pre><code>self.prediction_loss_only = True
+self.ddp_broadcast_buffers = False
+self.ddp_find_unused_parameters = True
+self.dataloader_drop_last = True  # forced under DDP</code></pre>
+    <p>Why each flag matters:</p>
+    <ul>
+      <li><strong><code>prediction_loss_only=True</code>:</strong> The default Trainer tries to collect logits for metrics computation. Our model returns a scalar loss, not logits — shape mismatch crash without this.</li>
+      <li><strong><code>ddp_broadcast_buffers=False</code>:</strong> DDP normally broadcasts <code>register_buffer</code> tensors from GPU 0 to all others each step. Qwen-VL modifies these buffers in-place during the forward pass. Broadcast + in-place write on a tensor referenced by gradient checkpointing = <code>RuntimeError: a leaf Variable that requires grad has been used in an in-place operation</code>.</li>
+      <li><strong><code>ddp_find_unused_parameters=True</code>:</strong> With 98.5% of parameters frozen, most gradient buckets receive no gradient. DDP's reducer waits for all params in a bucket to produce gradients, then silently leaks CPU RAM across steps → OOM late in training.</li>
+      <li><strong><code>dataloader_drop_last=True</code>:</strong> AllReduce is a collective — all 4 GPUs must call it together. If the dataset size is not divisible by world_size, one GPU has one extra batch and calls AllReduce once more while the others have already returned → deadlock.</li>
+    </ul>
+    <p>
+      There is one additional override: the <code>VLMRetrieverTrainer</code> disables the auto-generated model card callback. <code>BaseModelCardCallback.on_init_end()</code> preprocesses 1000 samples per column to compute dataset statistics. With 8 image columns × 1000 samples = 8,000 image decodes per DDP rank, this exhausts ~25 GB of RAM per rank before the first training step even starts.
+    </p>
+    <p>The training launch command:</p>
+    <pre><code>torchrun --nproc_per_node=4 --master_port=29500 train.py \
+  --model_name_or_path="Qwen/Qwen3-VL-Embedding-2B" \
+  --train_data='{"vdr": "/data_x/EMBEDDING/DATA/VL/preprocessed/260419_ko_en_vdr"}' \
+  --num_epochs=1 \
+  --per_device_train_batch_size=128 \
+  --learning_rate=2e-5 \
+  --use_lora=True \
+  --self_guide_margin=-0.1 \
+  --output_dir="./outputs/vlm-retriever" \
+  --use_wandb=True</code></pre>
+
+    <h2>6. Evaluation: KoViDoRe-v2</h2>
+
+    <p>
+      The model is evaluated on <strong>KoViDoRe-v2</strong>, a set of four BEIR-format Korean-English multimodal retrieval benchmarks across four domains:
+    </p>
+    <ul>
+      <li><code>whybe-choi/kovidore-v2-cybersecurity-beir</code></li>
+      <li><code>whybe-choi/kovidore-v2-hr-beir</code></li>
+      <li><code>whybe-choi/kovidore-v2-energy-beir</code></li>
+      <li><code>whybe-choi/kovidore-v2-economic-beir</code></li>
+    </ul>
+    <p>
+      Each dataset provides three splits: <code>corpus</code> (document page images), <code>queries</code> (text queries), and <code>qrels</code> (relevance judgments as (query_id, corpus_id, score) triples). The primary metric is <strong>mean NDCG@10</strong> across all four domains:
+    </p>
+    <pre><code>DCG@10  = Σ_{rank=1}^{10}  relevance(rank) / log2(rank + 1)
+NDCG@10 = DCG@10 / IDCG@10    (IDCG = ideal DCG with relevant docs at top-10)</code></pre>
+    <p>
+      Rank 1 contributes <code>rel / log2(2) = rel</code>; rank 2 contributes <code>rel × 0.63</code>, and so on. A <code>SequentialEvaluator</code> runs the four domain evaluators in sequence and reports the mean NDCG@10 as the model selection metric. Evaluation runs every 5% of training steps (plus at initialization) with eval batch size 8. Corpus images are materialized to disk once and lazily decoded per batch to avoid OOM.
+    </p>
+
+    <h2>7. The Complete Forward-Backward Flow</h2>
+
+    <p>
+      Putting it all together, one training step looks like this:
+    </p>
+    <pre><code>Batch of 128 (text query, image path) pairs
+     │
+     ▼  BaseDataCollator.__call__
+  ① extract dataset_name; ② warn on column order; ③ extract labels
+  ④ resolve prompts (anchor: "Represent the user's input." / positive: "")
+  ⑤ preprocess each column → prefixed tensors:
+     anchor_input_ids:        (128, L_text)
+     positive_pixel_values:   (Σ_patches, 4096)   ← all 128 images concatenated
+     positive_image_grid_thw: (128, 3)              ← (H, W, T) per image
+     negative_0_pixel_values: (Σ_patches, 4096)
+     ...
+     │
+     ▼  collect_features → [{anchor_feats}, {positive_feats}, {neg_0_feats}, ...]
+     │
+     ▼  MatryoshkaLoss.forward
+  ├─ installs CachedLossDecorator on CachedMNRL.calculate_loss
+  └─► CachedMNRL.forward(sentence_features, labels)
+       │
+       ├─ PHASE 1 [no_grad, mini_batch=4]
+       │    RandContext(*inputs) → save CPU+GPU RNG state
+       │    model(mini_batch) → (4, 4096)  [no computation graph]
+       │    .detach().requires_grad_() → artificial leaf
+       │
+       ├─ PHASE 2 [calculate_loss_and_cache_gradients]
+       │    CachedLossDecorator loops over dims [2048, 1536, 1024, 768, 512, 256, 128]:
+       │      shrink(full_embed, dim): [:dim] + F.normalize
+       │      Self-Guide mask: raw_q2d.detach() > (s_pos + 0.1) → fill(-inf)
+       │      sim_matrix * scale(20.0)
+       │      positive_scores = sim_matrix[row_indices, local_batch]
+       │      log_z = logsumexp(all_scores)
+       │      per_sample_loss = -(positive_scores - log_z)
+       │      .backward() → matryoshka leaf .grad filled
+       │      chain back through shrink into full_embed.grad
+       │    self.cache = full_embed.grad  (∂L/∂embedding)
+       │
+       └─ PHASE 3 [_backward_hook, fires on loss.backward()]
+            torch.enable_grad()
+            for each column, each mini-batch:
+              replay RandContext → model(mini_batch) WITH grad, same dropout masks
+              surrogate = dot(reps_mb, cached_grad) * grad_output
+              surrogate.backward()
+              → weight.grad = ∂L/∂weight  ✓
+     │
+     ▼  AdamW.step
+  Update ~30M LoRA A & B params
+  Skip ~1.97B frozen params</code></pre>
+
+    <h2>8. Why Each Technique Matters</h2>
+
+    <p>
+      Every design decision is solving either "how do we make the model better?" or "how do we make training feasible on real hardware?" Most do both at once.
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Technique</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Effectiveness</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Efficiency</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>Large batch (128/GPU)</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">127 negatives per query → harder task → better model</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Slower per step</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>GradCache</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Enables the large batch that improves quality</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Never holds full computation graph in memory</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>RandContext</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Correct gradient (wrong gradient = wasted training steps)</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Zero extra cost — just saves/restores RNG state</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>DDP (4 GPUs)</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Effective batch = 4×128 = 512 effective negatives</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">~4× throughput</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>Matryoshka (7 dims)</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">One model supports 7 speed/accuracy tradeoffs</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">7 loss computations, 1 forward pass</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>Self-Guide filter</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Cleaner signal by removing false negatives</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Tiny overhead for mask computation</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>LoRA (r=32)</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Targets layers where domain adaptation matters most</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">~240 MB optimizer state vs ~16 GB full fine-tune</td></tr>
+        <tr style="background:var(--bg-alt);"><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>Hard negative mining</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Harder negatives → finer-grained discrimination</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Pre-computed offline with the larger 8B model</td></tr>
+        <tr><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>No-duplicate sampler</strong></td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Every batch slot is a genuinely distinct negative</td><td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Greedy O(N) fill, negligible overhead</td></tr>
+      </tbody>
+    </table>
+
+    <blockquote>
+      The fundamental tension in contrastive retrieval training: more negatives → better model, but more negatives → more GPU memory → OOM. Every major technique here is a way to escape that tension. GradCache decouples batch size from memory; DDP multiplies the effective batch; LoRA frees headroom for larger batches; CachedLossDecorator keeps Matryoshka from requiring 7× more forward passes. The result: each query trains against 511 negatives in one step, on hardware that couldn't hold even 16 full-resolution document images without these tricks.
+    </blockquote>
+
+    <h2>9. Takeaways</h2>
+
+    <ul>
+      <li><strong>Visual document retrieval without OCR is practical.</strong> A 2B vision-language model fine-tuned with LoRA on 325k pairs achieves competitive retrieval on Korean + English corpora.</li>
+      <li><strong>GradCache is essential for image-heavy batches.</strong> Without it, batch size 128 with full-resolution document images is simply not feasible on 80GB GPUs.</li>
+      <li><strong>Hard negatives matter more than dataset size.</strong> Mining 7 hard negatives per pair using the 8B model, with a strict 0.05 margin filter, provides substantially more informative signal than random in-batch negatives alone.</li>
+      <li><strong>Multi-GPU DDP requires careful configuration.</strong> The default Trainer + DDP settings silently crash or leak memory with vision-language models and LoRA. The four safety flags in <code>VLMRetrieverTrainingArguments</code> are non-negotiable.</li>
+      <li><strong>Matryoshka embeddings are low-cost and high-value.</strong> Training 7 embedding sizes simultaneously with only a minor loss overhead gives users the flexibility to trade off accuracy against search latency at query time — without retraining.</li>
+    </ul>
+
+    <div class="post-footer">
+      <a href="../index.html#blog" class="post-footer-back btn btn-outline">← All Posts</a>
+      <a href="hierarchical-document-parsing.html" class="post-footer-back btn btn-outline">Also: Hierarchical Document Parsing →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>© 2026 Gyuho Shim. All rights reserved.</p>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+  });
+</script>
+
+</body>
+</html>

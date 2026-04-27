@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Understanding Hierarchical Document Parsing for RAG Systems — Gyuho Shim</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <span class="nav-name">Gyuho Shim</span>
+    <ul class="nav-links">
+      <li><a href="../index.html#home">Home</a></li>
+      <li><a href="../index.html#publications">Publications</a></li>
+      <li><a href="../index.html#projects">Projects</a></li>
+      <li><a href="../index.html#blog">Blog</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== POST HEADER ===== -->
+<div class="post-header">
+  <div class="container">
+    <a href="../index.html#blog" class="post-back">Back to Blog</a>
+    <div class="post-tag">Document AI · RAG</div>
+    <h1 class="post-title">Understanding Hierarchical Document Parsing for RAG Systems</h1>
+    <p class="post-date">April 2026 · Gyuho Shim</p>
+  </div>
+</div>
+
+<!-- ===== POST BODY ===== -->
+<div class="post-body">
+  <div class="container">
+
+    <p>
+      Most RAG pipelines treat a document as a bag of fixed-size text chunks. Chunk the PDF into 512-token windows, embed them, and retrieve the top-k. Simple — and brittle. The moment you face a 50-page technical manual, a legal contract with cross-referencing clauses, or an annual report mixing tables and prose, flat chunking falls apart. Evidence that spans sections gets split at an arbitrary boundary; structural cues like headings, captions, and footnotes disappear.
+    </p>
+
+    <p>
+      This post walks through why hierarchy matters for document parsing and retrieval, drawing on lessons from building <strong>HiKEY</strong> and the <strong>Document-level LVLM-Parser</strong>.
+    </p>
+
+    <h2>What flat chunking loses</h2>
+
+    <p>
+      A document is not a sequence of tokens — it is a tree. A section has subsections; a subsection has paragraphs; a paragraph may refer to a figure that lives in a different section. When you split at the token level, you destroy that structure. Three concrete problems follow:
+    </p>
+
+    <ul>
+      <li><strong>Evidence fragmentation.</strong> An answer may require combining a table header (Section 2) with a data row (Section 4) with a footnote disclaimer (Section 4, footer). No single chunk contains this; retrieval fails.</li>
+      <li><strong>Context loss.</strong> "It" in chunk #37 refers to a concept introduced in chunk #12. The LLM sees #37 in isolation and hallucenates the referent.</li>
+      <li><strong>Retrieval noise.</strong> Boilerplate — repeated headers, page numbers, legal disclaimers — scores highly against certain queries because it is dense with common terms. It pollutes the top-k.</li>
+    </ul>
+
+    <h2>The hierarchical alternative</h2>
+
+    <p>
+      Instead of treating parsing as "split into chunks," treat it as "recover the document's logical tree." A hierarchy-aware parser produces something like:
+    </p>
+
+    <pre><code>Document
+├── Section 1: Introduction
+│   ├── Paragraph 1.1
+│   └── Paragraph 1.2
+├── Section 2: Methodology
+│   ├── Subsection 2.1: Data
+│   │   ├── Table 2.1 (caption + cells)
+│   │   └── Paragraph 2.1.1
+│   └── Subsection 2.2: Model
+└── ...</code></pre>
+
+    <p>
+      Each node carries its content and its ancestry. Retrieval can then operate at multiple granularities: coarse routing to the right section, fine retrieval to the right paragraph.
+    </p>
+
+    <h2>HiKEY: coarse-to-fine retrieval over a document graph</h2>
+
+    <p>
+      HiKEY builds this structure as a <strong>heterogeneous offline graph</strong>. Nodes are document elements (sections, paragraphs, tables, figures). Edges encode parent-child hierarchy and cross-references. At query time, retrieval is two-stage:
+    </p>
+
+    <ol>
+      <li><strong>Coarse routing.</strong> A lightweight encoder scores each section-level node. This is cheap and narrows the search space from the whole document to a handful of sections.</li>
+      <li><strong>Fine retrieval.</strong> Within the shortlisted sections, a stronger encoder rescores paragraph- and table-level nodes. Candidate assembly then uses ancestry paths — not just the matched node, but its ancestors and siblings — to pass coherent context to the LLM.</li>
+    </ol>
+
+    <p>
+      The result on multi-page ODQA benchmarks: up to <strong>+4.5% over text-based RAG</strong> and <strong>+6.8% over full-page RAG</strong> in EM/ANLS. The gain comes almost entirely from queries that require multi-section evidence synthesis.
+    </p>
+
+    <h2>What makes parsing hard in practice</h2>
+
+    <p>
+      Recovering the logical tree is harder than it looks. Real PDFs are rendered as a stream of glyphs with x/y coordinates. There is no semantic tag saying "this is a section heading." You have to infer hierarchy from font size, indentation, whitespace, reading order, and visual layout — simultaneously.
+    </p>
+
+    <blockquote>
+      Multi-column layouts, spanning table cells, embedded figures, and scanned pages each require a different heuristic. No single parser gets all of them right.
+    </blockquote>
+
+    <p>
+      In the Document-level LVLM-Parser project, we sidestep the heuristic problem by using a vision-language model (<code>Qwen3-VL-4B</code>) to jointly understand page images and text. A 50M-parameter cross-attention decoder regresses bounding boxes from pooled LLM hidden states at special layout-query tokens. The layout grounding module is decoupled from content generation, which lets us train them with different objectives and freeze the LLM once it reaches acceptable NLU quality.
+    </p>
+
+    <h2>Takeaways</h2>
+
+    <ul>
+      <li>Flat chunking is a reasonable default for simple single-page documents. It breaks on anything complex.</li>
+      <li>Hierarchy recovery is a first-class parsing problem, not a post-processing step.</li>
+      <li>Retrieval and parsing are coupled — the granularity your parser produces should match the granularity your retriever is designed to score.</li>
+      <li>Ancestry-aware context assembly (giving the LLM the matched chunk plus its structural context) is cheap and meaningfully improves answer quality.</li>
+    </ul>
+
+    <div class="post-footer">
+      <a href="../index.html#blog" class="post-footer-back btn btn-outline">← All Posts</a>
+      <a href="ocr-errors-document-ai.html" class="post-footer-back btn btn-outline">Next: Why OCR Errors Matter →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>© 2026 Gyuho Shim. All rights reserved.</p>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+  });
+</script>
+
+</body>
+</html>

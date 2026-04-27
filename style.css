@@ -332,6 +332,179 @@ section { padding: 5rem 1.5rem; }
 }
 .exp-bullets li { font-size: 0.87rem; color: var(--text-muted); }
 
+/* ===== BLOG ===== */
+.blog-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.blog-item {
+  padding: 1.3rem 0;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 1.5rem;
+  align-items: baseline;
+}
+.blog-item:first-child { border-top: 1px solid var(--border); }
+.blog-meta {
+  grid-row: 1;
+  grid-column: 1;
+  align-self: start;
+  padding-top: 0.1rem;
+}
+.blog-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.blog-title {
+  grid-row: 1;
+  grid-column: 2;
+  font-size: 0.97rem;
+  font-weight: 600;
+  color: var(--primary);
+  line-height: 1.4;
+  transition: color 0.15s;
+}
+.blog-title:hover { color: var(--accent); text-decoration: none; }
+.blog-excerpt {
+  grid-row: 2;
+  grid-column: 2;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+  line-height: 1.55;
+}
+
+/* ===== BLOG POST PAGE ===== */
+.post-header {
+  padding-top: 7rem;
+  padding-bottom: 2.5rem;
+  background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 60%);
+  border-bottom: 1px solid var(--border);
+}
+.post-header .container { max-width: 760px; }
+.post-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  transition: color 0.15s;
+}
+.post-back:hover { color: var(--accent); text-decoration: none; }
+.post-back::before { content: "←"; }
+.post-tag {
+  display: inline-block;
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 4px;
+  padding: 0.18rem 0.55rem;
+  margin-bottom: 0.8rem;
+}
+.post-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.3;
+  margin-bottom: 0.8rem;
+}
+.post-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.post-body {
+  padding: 3rem 1.5rem 5rem;
+}
+.post-body .container { max-width: 760px; }
+.post-body h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 2.2rem 0 0.8rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--accent);
+  display: inline-block;
+}
+.post-body h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 1.6rem 0 0.5rem;
+}
+.post-body p {
+  font-size: 0.93rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+.post-body p strong { color: var(--text); }
+.post-body ul, .post-body ol {
+  padding-left: 1.4rem;
+  margin-bottom: 1rem;
+}
+.post-body li {
+  font-size: 0.93rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: 0.3rem;
+}
+.post-body li strong { color: var(--text); }
+.post-body code {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.88em;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--primary);
+}
+.post-body pre {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.3rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+.post-body pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.87rem;
+}
+.post-body blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.1rem;
+  margin: 1.2rem 0;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.93rem;
+}
+.post-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.post-footer-back {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
 /* ===== CONTACT ===== */
 .contact-inner { text-align: center; }
 .contact-inner p { color: var(--text-muted); margin-bottom: 1.5rem; }
