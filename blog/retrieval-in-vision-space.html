@@ -60,29 +60,71 @@
       On clean, purely textual documents this works fine. But real-world document collections — financial filings, academic posters, product manuals — are visually rich. A figure caption next to a bar chart, a table where column headers span two rows, a flowchart with directional arrows: OCR extracts the characters and loses everything else. The retrieved chunk says "Q3 Revenue: 4.2B" with no indication that the number appeared in a row labeled "Asia Pacific" inside a table titled "Regional Breakdown."
     </p>
     <p>
-      The alternative — rendering each page as an image and using a vision-language model to understand it — was dismissed for years as too slow for indexing at scale. ColPali changes that calculus.
-    </p>
-
-    <h3>1.2 Architecture: ColBERT × PaliGemma</h3>
-    <p>
-      ColPali's architecture is the intersection of two prior ideas:
+      The alternative — rendering each page as an image and using a vision-language model to understand it — was dismissed for years as too slow for indexing at scale. ColPali changes that calculus by satisfying three requirements simultaneously:
     </p>
     <ul>
-      <li><strong>ColBERT's Late Interaction:</strong> instead of compressing a document into one vector, keep a separate vector per token. Matching is done by a max-sim operation between query tokens and document tokens.</li>
-      <li><strong>PaliGemma's visual tokenization:</strong> a Vision Transformer (ViT) splits each page image into a grid of 16×16-pixel patches and produces one embedding per patch — a "bag of image patches," analogous to a bag of word tokens.</li>
+      <li><strong>R1 — Strong Retrieval Performance:</strong> match or exceed OCR-based baselines on visually rich documents</li>
+      <li><strong>R2 — Fast Online Querying:</strong> query-time processing must be low-latency enough for real-time use</li>
+      <li><strong>R3 — High Throughput Corpus Indexation:</strong> pages must be embeddable quickly enough for large-scale offline indexing</li>
     </ul>
     <p>
-      Combined, ColPali encodes a query text into a sequence of token embeddings <code>E_q</code> and each document page image into a sequence of patch embeddings <code>E_d</code>, then scores them with the <strong>Late Interaction (MaxSim)</strong> function:
+      Prior VLM-based approaches failed R3 — re-encoding documents against each new query is prohibitively slow. ColPali achieves all three by separating the heavy VLM computation into offline indexing (once per document) and keeping query-time work to a lightweight MaxSim lookup.
+    </p>
+
+    <h3>1.2 Background: ColBERT and Late Interaction</h3>
+    <p>
+      Understanding ColPali requires understanding ColBERT, the retrieval architecture it builds on.
+    </p>
+    <p>
+      Classical dense retrieval is <strong>bi-encoder</strong> retrieval: a query encoder and a document encoder each produce a single vector; retrieval is nearest-neighbor search over the document index. This satisfies R2 and R3 but compresses all document semantics into a single point — fine-grained token-level signals are lost.
+    </p>
+    <p>
+      <strong>Cross-encoders</strong> are at the other extreme: query and document are fed together through a full transformer, enabling rich token-level interaction (R1). But they require a full forward pass per query-document pair — scoring a 1M-document corpus at query time is not feasible (fails R2).
+    </p>
+    <p>
+      <strong>ColBERT</strong> (Contextualized Late Interaction over BERT) bridges both paradigms. Instead of one vector per document, ColBERT produces one vector per token — a <em>multi-vector</em> representation. Document token embeddings are computed offline and stored. At query time, only the query token embeddings are computed, and relevance is scored via <strong>MaxSim</strong>:
     </p>
     <pre><code>LI(q, d) = Σᵢ max_j &lt;E_q^(i) | E_d^(j)&gt;</code></pre>
     <p>
-      For every query token, find the most similar document patch; sum those maxima across all query tokens. The dot product <code>&lt;·|·&gt;</code> is cosine similarity after L2 normalization.
-    </p>
-    <p>
-      This is significant in two ways. First, query tokens can attend selectively to the most relevant regions of the page, rather than being forced through a single bottleneck embedding. Second, all document patch embeddings are pre-computed and stored at index time — retrieval is just a MaxSim lookup, not a full VLM forward pass.
+      For each query token <em>i</em>, find the highest cosine similarity across all document token embeddings <em>j</em>; sum over query tokens. The document side is fully precomputed — querying is just matrix multiplication, satisfying all three requirements simultaneously.
     </p>
 
-    <h3>1.3 ViDoRe: Visual Document Retrieval Benchmark</h3>
+    <h3>1.3 Architecture: ColBERT × PaliGemma</h3>
+    <p>
+      ColPali applies ColBERT's late interaction principle to document images by replacing BERT with PaliGemma-3B as the document encoder.
+    </p>
+    <p>
+      <strong>PaliGemma as a Prefix-LM.</strong> PaliGemma processes image tokens and text with full bidirectional attention over the combined prefix. Rather than using the model autoregressively for generation, ColPali extracts the <em>final hidden states</em> from Gemma-2B's last transformer layer — one contextualized embedding per input token (image patch + query text token). These are the "bag of patch embeddings" that ColBERT's late interaction operates on.
+    </p>
+    <p>
+      <strong>Projection layer.</strong> The final hidden states (dimensionality of the language model) are projected down to D=128 via a learned linear layer, producing lightweight embeddings for large-scale nearest-neighbor indexing — a "bag of embeddings" analogous to ColBERT's bag of token vectors.
+    </p>
+    <p>The full processing pipeline for a document page:</p>
+    <pre><code>Document Image
+  → SiglipImageProcessor
+  → Pixel Values
+  → PaliGemma (SigLIP ViT + Multi-modal Projector + Gemma LM)
+  → Hidden States  (last transformer layer, one per patch/token)
+  → Embedding Projection  (→ D=128)
+  → L2 Normalization
+  → Multi-vector Embeddings  (stored in index)</code></pre>
+
+    <p>Module tree:</p>
+    <pre><code>ColPali
+├── ColPaliProcessor
+│   ├── SiglipImageProcessor
+│   └── GemmaTokenizer
+└── ColPaliForRetrieval
+    └── PaliGemma VLM
+        ├── SigLIP Vision Encoder
+        ├── Multi-modal Projector
+        └── Gemma Language Model</code></pre>
+
+    <p>
+      Combined, ColPali encodes a query into a sequence of token embeddings <code>E_q</code> and each document page into a sequence of 784 patch embeddings <code>E_d</code> (448×448 input → 28×28 patch grid), then scores them with MaxSim.
+    </p>
+
+    <h3>1.4 ViDoRe: Visual Document Retrieval Benchmark</h3>
     <p>
       The paper introduces <strong>ViDoRe</strong> (Visual Document Retrieval Benchmark), a benchmark of 10 retrieval datasets spanning diverse document types: scientific figures, medical scans, administrative documents, and more. The primary metric is <strong>NDCG@5</strong> — normalized discounted cumulative gain at rank 5.
     </p>
@@ -96,6 +138,7 @@
           <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">System</th>
           <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">NDCG@5</th>
           <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Indexing speed</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Retrieval granularity</th>
         </tr>
       </thead>
       <tbody>
@@ -103,30 +146,52 @@
           <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Standard OCR pipeline</td>
           <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.66</td>
           <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">7.22 s/page</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Chunk-level (~2.1 chunks/page)</td>
         </tr>
         <tr style="background:var(--bg-alt);">
           <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">ColPali (PaliGemma-3B)</td>
           <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.81</td>
           <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.39 s/page</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Page-level (image)</td>
         </tr>
       </tbody>
     </table>
 
     <p>
-      ColPali achieves +15 NDCG@5 points over the OCR baseline while being 18× faster to index. The speed advantage comes from eliminating the OCR step entirely — a single ViT forward pass over the page image replaces the OCR + chunking + embedding pipeline.
+      ColPali achieves +15 NDCG@5 points over the OCR baseline while being 18× faster to index. The speed advantage comes from eliminating the OCR step entirely — a single VLM forward pass over the page image replaces the full OCR + chunking + embedding pipeline. Both systems output IDs pointing to stored content; the 18× figure covers the indexing phase only.
+    </p>
+    <p>
+      The granularity difference matters downstream: OCR pipelines retrieve at chunk level (a page split into ~2.1 text segments on average), handing the downstream reader a focused text span. ColPali's returned unit is the whole page image — the downstream MLLM or human must scan the full page rather than a targeted excerpt.
     </p>
 
-    <h3>1.4 Why Late Interaction Works for Pages</h3>
+    <h3>1.5 Why Late Interaction Works for Pages</h3>
     <p>
-      A page image at 448×448 pixels (ColPali's input resolution) is divided into 28×28 = 784 patches. Each patch becomes one entry in <code>E_d</code>. The query "What was Q3 revenue in Asia Pacific?" might have 9 tokens. MaxSim finds, for each query token, the single most-relevant patch — e.g., the token "Asia Pacific" will max-sim to the patch covering the relevant table row, not to a patch covering an unrelated figure on the same page.
+      A page image at 448×448 pixels is divided into 28×28 = 784 patches. Each patch becomes one entry in <code>E_d</code>. The query "What was Q3 revenue in Asia Pacific?" might have 9 tokens. MaxSim finds, for each query token, the single most-relevant patch — the token "Asia Pacific" will max-sim to the patch covering the relevant table row, not to a patch covering an unrelated figure on the same page.
     </p>
     <p>
       The single-vector alternative must compress all 784 patches into one number — spatial layout is irrecoverably mixed together. Late Interaction preserves the spatial decomposition all the way through scoring.
     </p>
-
-    <h3>1.5 Limitations</h3>
+    <p>In implementation, the batch MaxSim is computed as:</p>
+    <pre><code># batch_queries:  (B, N, D) — B queries, N query tokens, D dims
+# batch_passages: (C, S, D) — C pages, S patch tokens, D dims
+scores = (
+    torch.einsum("bnd,csd-&gt;bcns", batch_queries, batch_passages)
+    .max(dim=3)[0]   # for each (query, page, query-token): max over patches
+    .sum(dim=2)      # sum over query tokens → final (B, C) score matrix
+)</code></pre>
     <p>
-      ColPali's main cost is storage: 784 vectors per page instead of 1. For a 1M-page corpus, a 128-dim index stores 1M × 784 × 128 × 4 bytes ≈ 400 GB. This is manageable but meaningfully larger than a single-vector index. Quantization (binary or int8) and dimension reduction via Matryoshka training are the standard mitigations.
+      The <code>max(dim=3)</code> over the patch dimension implements MaxSim — each query token finds its best-matching patch. The <code>sum(dim=2)</code> aggregates across all query tokens to produce the final page score.
+    </p>
+
+    <h3>1.6 Limitations</h3>
+    <p>
+      ColPali's main cost is storage: 784 vectors per page instead of 1. For a 1M-page corpus, a 128-dim index stores 1M × 784 × 128 × 4 bytes ≈ 400 GB. Quantization (binary or int8) and Matryoshka dimension reduction are the standard mitigations.
+    </p>
+    <p>
+      A subtler limitation is retrieval granularity. ColPali returns a page; it has no mechanism to pinpoint a sub-page region. For tasks where localization matters — "what number appears in cell (3,2) of this table?" — the downstream reader must process the whole page. OCR chunk-level retrieval delivers a focused text span instead.
+    </p>
+    <p>
+      Finally, ColPali's page-level MaxSim is inherently localized: it scores one page against one query independently. For <strong>multi-hop or cross-page questions</strong> ("what is the revenue trend across Q1–Q4 in the annual report?"), the retriever returns pages in isolation, and the downstream MLLM must synthesize evidence across them. This is a general RAG limitation, but it is amplified when each retrieved unit is a full page rather than a targeted excerpt — the model must read more to extract the same information.
     </p>
 
     <h2>2. Lost in OCR Translation? (ACM DocEng 2025)</h2>
