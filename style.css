@@ -752,6 +752,74 @@ footer {
   background: var(--bg-alt);
 }
 
+/* ===== DARK MODE ===== */
+html.dark {
+  color-scheme: dark;
+  --primary:      #f1f5f9;
+  --accent:       #60a5fa;
+  --accent-dark:  #93c5fd;
+  --accent-light: #1e3a5f;
+  --accent-2:     #818cf8;
+  --text:         #e2e8f0;
+  --text-muted:   #94a3b8;
+  --text-subtle:  #64748b;
+  --border:       #334155;
+  --border-light: #1e293b;
+  --bg:           #0f172a;
+  --bg-alt:       #1e293b;
+  --shadow-xs:  0 1px 2px rgba(0,0,0,0.4);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow:     0 4px 6px -1px rgba(0,0,0,0.5), 0 2px 4px -2px rgba(0,0,0,0.3);
+  --shadow-md:  0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -4px rgba(0,0,0,0.3);
+  --shadow-lg:  0 20px 25px -5px rgba(0,0,0,0.6), 0 8px 10px -6px rgba(0,0,0,0.3);
+}
+
+body, #navbar, section, footer, .post-header, .post-body {
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+html.dark #navbar {
+  background: rgba(15,23,42,0.92);
+}
+html.dark #navbar.scrolled {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+
+html.dark .hero {
+  background:
+    radial-gradient(ellipse 80% 70% at -5% -10%, rgba(59,130,246,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 50% at 105% 105%, rgba(99,102,241,0.06) 0%, transparent 55%),
+    var(--bg);
+}
+html.dark .profile-photo { border-color: var(--border); }
+
+html.dark .venue-acl    { background: #1e3a5f; color: #93c5fd; }
+html.dark .venue-emnlp  { background: #064e3b; color: #6ee7b7; }
+html.dark .venue-review { background: #451a03; color: #fcd34d; }
+html.dark .venue-report { background: #2e1065; color: #c4b5fd; }
+html.dark .venue-hclt   { background: #4c0519; color: #fda4af; }
+
+html.dark .post-body code { color: #93c5fd; }
+
+/* theme toggle button */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.05rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  transition: background 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+.theme-toggle:hover { background: var(--bg-alt); }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 720px) {
   section { padding: 4rem 1.25rem; }
