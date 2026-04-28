@@ -10,6 +10,8 @@
 </head>
 <body>
 
+<div class="cursor-dot" id="cursorDot"></div>
+
 <!-- ===== NAVIGATION ===== -->
 <nav id="navbar">
   <div class="nav-inner">
@@ -131,6 +133,31 @@
 </footer>
 
 <script>
+  // Custom cursor
+  (function() {
+    var dot = document.getElementById('cursorDot');
+    if (!dot || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    document.addEventListener('mousemove', function(e) {
+      dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
+      var t = document.createElement('div');
+      var sz = (2 + Math.random() * 3).toFixed(1);
+      t.style.cssText = 'position:fixed;pointer-events:none;border-radius:50%;z-index:99999;'
+        + 'left:' + e.clientX + 'px;top:' + e.clientY + 'px;'
+        + 'width:' + sz + 'px;height:' + sz + 'px;'
+        + 'background:var(--accent);'
+        + 'animation:cursor-trail-fade 1.3s ease-in forwards;';
+      document.body.appendChild(t);
+      setTimeout(function() { t.parentNode && t.parentNode.removeChild(t); }, 1320);
+    });
+    var sel = 'a,button,.btn,.chip,.pub-card,.proj-card,.edu-item,.exp-item,.blog-item';
+    document.addEventListener('mouseover', function(e) {
+      if (e.target.closest(sel)) document.body.classList.add('cursor-hover');
+    });
+    document.addEventListener('mouseout', function(e) {
+      if (e.target.closest(sel)) document.body.classList.remove('cursor-hover');
+    });
+  })();
+
   window.addEventListener('scroll', () => {
     document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
   });
