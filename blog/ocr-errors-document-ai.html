@@ -28,7 +28,7 @@
 <div class="post-header">
   <div class="container">
     <a href="../index.html#blog" class="post-back">Back to Blog</a>
-    <div class="post-tag">Document AI · OCR</div>
+    <div class="post-tag">Document AI · OCR · ACL 2025</div>
     <h1 class="post-title">Why OCR Errors Matter: Building Robust Document AI Pipelines</h1>
     <p class="post-date">March 2026 · Gyuho Shim</p>
   </div>
@@ -66,14 +66,76 @@
     <h2>Building a taxonomy first</h2>
 
     <p>
-      Before building a correction model, we needed to know what we were correcting. We constructed a <strong>hierarchical taxonomy</strong> of OCR errors with three levels:
+      Before building a correction model, we needed to know what we were correcting. We constructed a <strong>hierarchical taxonomy</strong> of OCR errors organized at three linguistic granularities: character level, word level, and column (layout) level. Each granularity has distinct causes and requires distinct correction strategies.
     </p>
 
-    <ol>
-      <li><strong>Character-level:</strong> substitution, insertion, deletion, transposition.</li>
-      <li><strong>Word-level:</strong> merged words, split words, hyphenation artifacts.</li>
-      <li><strong>Structural-level:</strong> reading order, table structure, heading/body confusion.</li>
-    </ol>
+    <h3>Character Level — Single-character errors</h3>
+    <p>
+      These are the most granular errors: individual characters are wrong, missing, or swapped.
+    </p>
+    <ul>
+      <li><strong>Insertion</strong> — Addition of spurious characters from document noise, physical artifacts, or scanner interference. <em>apple → applee</em></li>
+      <li><strong>Deletion</strong> — Omission of legitimate characters due to poor contrast or faded ink. <em>clamp → lamp, filter → filer</em></li>
+      <li><strong>Substitution</strong> — Replacing a character with a visually similar alternative due to font peculiarities or resolution limitations. <em>O → 0, é → e, blue → b1ue</em></li>
+      <li><strong>Transposition</strong> — Character position swapping caused by bounding box coordinate miscalculations. <em>Gauge → Guage</em></li>
+    </ul>
+
+    <h3>Word Level — Word-segmentation errors</h3>
+    <p>
+      These errors occur at token boundaries — the OCR engine misidentifies where one word ends and the next begins.
+    </p>
+    <ul>
+      <li><strong>Over-segmentation</strong> — Fragmenting a cohesive compound word by inserting an incorrect space. <em>greenhouse → green house</em></li>
+      <li><strong>Under-segmentation</strong> — Erroneously merging two distinct words into one unit due to spacing misinterpretation or layout analysis failure. <em>Not able → Notable</em></li>
+    </ul>
+
+    <h3>Column Level — Layout-reading errors</h3>
+    <p>
+      These are the most damaging error type for downstream tasks. An OCR engine processing a two-column document in left-to-right, top-to-bottom order will interleave the text from both columns rather than reading each column sequentially. The resulting output is syntactically and semantically incoherent — words from a sentence in column A are mixed with words from an unrelated sentence in column B. No character-level correction can fix this; restoring reading order requires structural understanding of the page layout.
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1.5rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Category</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Name</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="4" style="padding:0.45rem 0.8rem;border:1px solid var(--border);vertical-align:top;"><strong>Character Level</strong><br><span style="color:var(--text-muted);font-size:0.82rem;">(Single-character)</span></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Insertion</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">apple → applee</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Deletion</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">clamp → lamp · filter → filer</td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Substitution</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">O → 0 · é → e · blue → b1ue</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Transposition</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Gauge → Guage</td>
+        </tr>
+        <tr>
+          <td rowspan="2" style="padding:0.45rem 0.8rem;border:1px solid var(--border);vertical-align:top;"><strong>Word Level</strong><br><span style="color:var(--text-muted);font-size:0.82rem;">(Word-segmentation)</span></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Over-segmentation</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">greenhouse → green house</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Under-segmentation</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Not able → Notable</td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);vertical-align:top;"><strong>Column Level</strong><br><span style="color:var(--text-muted);font-size:0.82rem;">(Layout-reading)</span></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Column Reading Order</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Multi-column interleaving</td>
+        </tr>
+      </tbody>
+    </table>
 
     <p>
       This taxonomy matters because correction strategies differ by level. Character errors can be addressed with a seq2seq model trained on character perturbations. Structural errors require layout-aware modeling that understands spatial position, not just token sequence.
@@ -86,27 +148,206 @@
     </p>
 
     <p>
-      The noise injection pipeline applies each error type in the taxonomy with calibrated probability and severity, drawn from distributions estimated on a small set of real OCR outputs. The result is synthetic training data that closely matches the error distribution of real scanned documents without requiring large-scale annotation.
+      The injection pipeline follows three steps:
+    </p>
+    <ol>
+      <li><strong>Format raw text into structured templates</strong> — normalize clean text into fixed-length lines and single-column layout, establishing a clean reference for each document.</li>
+      <li><strong>Simulate column reading order errors</strong> — reorder text segments to mimic the interleaved output an OCR engine produces when it naively scans a multi-column page left-to-right.</li>
+      <li><strong>Inject character- and word-level errors probabilistically</strong> — apply each error type (insertion, deletion, substitution, transposition, over-/under-segmentation) with configurable per-type ratios, drawing from distributions estimated on a small set of real OCR outputs.</li>
+    </ol>
+
+    <p>
+      The contaminated datasets are then used to train two families of models: a generalist <strong>REVISE-meta</strong> that handles all error types simultaneously, and a suite of error-type-specific models (e.g., <em>only-Segmentation</em>, <em>only-Column</em>) that specialize in a single correction task. This gives practitioners the flexibility to apply targeted correction when the dominant error type in their corpus is known.
     </p>
 
     <blockquote>
       The key insight: you do not need to know which characters the OCR got wrong. You need to match the <em>statistical profile</em> of errors that OCR produces on documents of a given type. Synthetic contamination is a tractable proxy for this.
     </blockquote>
 
-    <h2>What correction buys downstream</h2>
+    <h2>Experiments</h2>
 
     <p>
-      The payoff is in downstream tasks. We measured QA accuracy and retrieval precision on documents corrected by REVISE vs. raw OCR output. Results on the evaluation set:
+      We evaluated REVISE across four experiment types designed to measure different aspects of OCR correction quality, using four embedding models (bge-large-en-v1.5, e5-large-v2, jina-embeddings-v2-base, gte-base-en-v1.5) and two reader LLMs (Gemma-2-9b-it, Llama-3.1-8B).
     </p>
 
-    <ul>
-      <li>QA accuracy improved by <strong>+5–8%</strong> on documents with heavy font degradation.</li>
-      <li>Retrieval precision (top-5) improved by <strong>+3–6%</strong> on multi-column documents.</li>
-      <li>The gain was largest on questions that required reading across a structural boundary (e.g., combining a table row with a paragraph in the same section).</li>
-    </ul>
+    <h3>1. Retrieval — VisualMRC and DUDE</h3>
+    <p>
+      We measured Recall@1, @3, and @5 on two retrieval benchmarks: VisualMRC (visually-rich documents) and DUDE (a dataset with highly regular column-based layouts).
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Method</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">VisualMRC avg Recall</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">DUDE avg Recall</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Baseline (raw OCR)</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.6578</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.2534</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">REVISE-meta</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.6666 (+1.3%)</strong></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.2975 (+17.3%)</strong></td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">only Column</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.6612</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.3076 (best single)</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">only Segmentation</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.6665</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.2987</td>
+        </tr>
+      </tbody>
+    </table>
 
     <p>
-      Notably, correction at the character level alone did not produce the full gain. Structural correction — recovering reading order and table cell boundaries — was responsible for roughly half the downstream improvement.
+      The 17.3% average recall gain on DUDE is large — and the cause is clear: DUDE's documents have highly regular multi-column layouts. Column reading order correction directly fixes the dominant error type, boosting average recall from 25.34% to 30.76% on that split alone. On VisualMRC, the improvement is smaller because the error distribution is more diverse and no single error type dominates. Notably, some single-type corrections occasionally <em>underperform</em> the baseline — over-correction, where a correction model modifies text that was actually read correctly, introducing new errors.
+    </p>
+
+    <h3>2. Similarity Assessment — DocVQA, CORD, FUNSD</h3>
+    <p>
+      We measured BERTScore between REVISE-corrected text and the ground-truth clean document text, for three datasets covering free-form queries (DocVQA) and structured forms (CORD, FUNSD).
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Method</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">DocVQA</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">CORD</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">FUNSD</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Baseline</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.4959</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.5390</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.5577</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">REVISE-meta</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.5137</strong></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.5443</strong></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.5647</strong></td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">only Segmentation</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.5096</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.5408</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.5601</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      REVISE-meta ranks first on all three datasets. Segmentation correction is the single most impactful error type on DocVQA (free-form queries), while combining all error corrections achieves the best overall performance on the structured CORD and FUNSD datasets. This demonstrates that REVISE enhances not just surface-level text quality but semantic consistency — the corrected text is more aligned with the meaning of the original clean document.
+    </p>
+
+    <h3>3. Question Answering — VisualMRC and CORD</h3>
+    <p>
+      We measured downstream QA performance using REVISE-corrected text as input to two reader LLMs. REVISE-meta consistently outperforms raw OCR across both models and both datasets:
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Reader Model</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Method</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">VisualMRC</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">CORD</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="2" style="padding:0.45rem 0.8rem;border:1px solid var(--border);vertical-align:middle;">Gemma-2-9b-it</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Baseline</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">320.9</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.367</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">REVISE-meta</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>329.2 (+2.6%)</strong></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.372 (+1.4%)</strong></td>
+        </tr>
+        <tr>
+          <td rowspan="2" style="padding:0.45rem 0.8rem;border:1px solid var(--border);vertical-align:middle;">Llama-3.1-8B</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Baseline</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">290.7</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.448</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">REVISE-meta</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>293.1 (+0.8%)</strong></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.450 (+0.4%)</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      The gains are consistent but moderate in QA — OCR correction improves the quality of the input text, which in turn helps the LLM read the document more accurately. The larger improvements on VisualMRC reflect the document type: VisualMRC documents have richer visual layouts (more OCR errors) than CORD's structured receipts, where OCR is already more reliable.
+    </p>
+
+    <h3>4. Qualitative Assessment — GPT-4o-mini Win Rate</h3>
+    <p>
+      We used GPT-4o-mini as a judge to compare REVISE-corrected text against raw OCR output on the same documents. The judge was shown both versions and asked to pick the higher-quality text for document understanding purposes.
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Method</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">VisualMRC Win Rate</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">DUDE Win Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">REVISE-meta</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.94</strong></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.86</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">only Segmentation</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.92</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>0.92</strong></td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">only Column</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.74</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.89</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">only Deletion</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.84</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.64</td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">only Insertion</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.61</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.59</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      REVISE-meta achieves a 0.94 win rate on VisualMRC — in 94 out of 100 comparisons, the LLM judge preferred the corrected text over raw OCR. On DUDE, <em>only-Segmentation</em> edges out REVISE-meta (0.92 vs. 0.86), reinforcing that for corpora where a single dominant error type is known, a specialized model can outperform the generalist. Insertion-only correction has the lowest win rate across both datasets, suggesting that spurious character additions are less damaging to document quality than segmentation or structural errors.
+    </p>
+
+    <h2>Limitations and future directions</h2>
+
+    <p>
+      REVISE has two significant current limitations. First, it operates on <strong>text-only documents</strong> — documents containing tables, charts, or embedded images are out of scope. When the document structure is primarily visual rather than textual, REVISE cannot help; a VLM-based approach is needed instead. Second, the contamination strategy relies on <strong>empirical error definitions and hand-tuned injection ratios</strong>. Without a comprehensive statistical analysis of OCR error distributions across domains and document types, the synthetic data may not precisely match real-world error profiles, which can limit generalization to new document categories.
+    </p>
+    <p>
+      The planned next steps address both: extending REVISE to handle documents with mixed text and visual elements (enabling correction of tables, charts, and image-embedded text), and conducting a large-scale statistical analysis of OCR error distributions across diverse domains to ground the contamination ratios in empirical measurements.
     </p>
 
     <h2>Practical lessons</h2>
