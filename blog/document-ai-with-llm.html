@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document AI with LLM — Gyuho Shim</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <span class="nav-name">Gyuho Shim</span>
+    <ul class="nav-links">
+      <li><a href="../index.html#home">Home</a></li>
+      <li><a href="../index.html#publications">Publications</a></li>
+      <li><a href="../index.html#projects">Projects</a></li>
+      <li><a href="../index.html#blog">Blog</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== POST HEADER ===== -->
+<div class="post-header">
+  <div class="container">
+    <a href="../index.html#blog" class="post-back">Back to Blog</a>
+    <div class="post-tag">Document AI · LLM · Layout Understanding</div>
+    <h1 class="post-title">Document AI with LLM</h1>
+    <p class="post-date">October 2025 · Gyuho Shim</p>
+  </div>
+</div>
+
+<!-- ===== POST BODY ===== -->
+<div class="post-body">
+  <div class="container">
+
+    <p>
+      A document is not a sequence of sentences. It is a structured spatial object: text positioned in columns, labels adjacent to values, section headers visually distinct from body text, numbers clustered in tables. When you feed a document to a language model as a flat text string, you keep the words and discard everything else.
+    </p>
+    <p>
+      The Document AI field has spent the last several years building systems that close this gap — models that understand not just what the words say but where they are and how their spatial arrangement carries meaning. This post covers the two main paradigms that have emerged, anchored in two specific papers: DocLLM (ACL 2024) from J.P. Morgan AI Research, and LayTextLLM from ByteDance.
+    </p>
+
+    <h2>1. Two Paradigms for Document Understanding</h2>
+
+    <p>
+      The field has split into two architectural families:
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1.5rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Paradigm</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Approach</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Representative Models</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>OCR-Free MLLM</strong></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Render page as image; ViT encodes visual patches; LLM reads patch tokens</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Donut, Pix2Struct, mPLUG-DocOwl, Qwen2-VL</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);"><strong>OCR + LLM</strong></td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Extract text + bounding boxes via OCR; encode layout as tokens alongside text</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">DocLLM, LayoutLLM, LayTextLLM</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      OCR-Free models are end-to-end differentiable and require no external tools. Their limitation is resolution: a typical ViT input of 448×448 pixels gives each "token" a spatial footprint of ~16×16 pixels, which may not be fine-grained enough to read dense tables or small-font footnotes. High-resolution variants (like Qwen2-VL's dynamic resolution) improve this at the cost of significantly more tokens per page.
+    </p>
+    <p>
+      OCR+LLM models assume OCR is a pre-processing step and focus entirely on how to represent the resulting text and spatial coordinates inside the LLM's token sequence. The quality ceiling is OCR quality, but for high-quality documents, explicit bounding box coordinates give the model precise spatial grounding that patch-based approaches must learn implicitly.
+    </p>
+
+    <h2>2. DocLLM: A Layout-Aware Generative Language Model for Multimodal Document Understanding (ACL 2024)</h2>
+
+    <h3>2.1 The Core Idea: Disentangled Spatial Attention</h3>
+    <p>
+      Standard transformer self-attention lets every token attend to every other token uniformly. DocLLM introduces <strong>Disentangled Spatial Attention</strong>: attention that separately considers the textual content of each token and its spatial relationship to other tokens.
+    </p>
+    <p>
+      The motivation is direct. Consider two tokens: the word "Revenue" and the number "4.2B". In a financial table, these are spatially adjacent and semantically related — the model needs to learn that the number is the value for the label. But in a different document, "Revenue" might appear in a section header, with no number nearby. Standard attention treats both cases identically; spatial attention distinguishes them.
+    </p>
+    <p>
+      DocLLM represents each OCR token with two components:
+    </p>
+    <pre><code>token = (text_content, bounding_box)
+bounding_box = (x_min, y_min, x_max, y_max)  # normalized page coordinates</code></pre>
+    <p>
+      The disentangled attention computes separate attention scores for the text-to-text relationship and the spatial-to-spatial relationship, then combines them:
+    </p>
+    <pre><code>Attn(i, j) = softmax(
+  Q_text[i] · K_text[j]ᵀ / √d     (text content similarity)
++ Q_bbox[i] · K_bbox[j]ᵀ / √d     (spatial proximity)
+) · V[j]</code></pre>
+    <p>
+      The bounding box coordinates are encoded into positional embeddings analogous to the 1D positional encodings in standard transformers, but operating in 2D page space. Two tokens that are spatially adjacent on the page will have high spatial attention regardless of their text content.
+    </p>
+
+    <h3>2.2 Training Objective</h3>
+    <p>
+      DocLLM is a generative model trained with a standard autoregressive objective on document understanding tasks: document question answering, information extraction, key-value pair extraction, and document classification. The layout-aware attention is learned end-to-end — the model learns that spatial proximity is a useful signal without explicit supervision on spatial relationships.
+    </p>
+    <p>
+      DocLLM achieves best performance on 12 out of 16 document understanding benchmarks at the time of publication, demonstrating that disentangled spatial attention is a widely applicable inductive bias across document types and tasks.
+    </p>
+
+    <h3>2.3 Limitation: Bounding Box Sequence Length</h3>
+    <p>
+      Each OCR token requires four bounding box coordinates in addition to its text token ID. For a dense document page with 500 OCR tokens, the input sequence to the LLM is 500 text tokens + 4 × 500 = 2,500 coordinate values. At typical tokenization, this significantly inflates the context length and slows inference. LayTextLLM directly addresses this limitation.
+    </p>
+
+    <h2>3. LayTextLLM: Scaling Layout-Language Alignment for Visually-Rich Document Understanding (ByteDance)</h2>
+
+    <h3>3.1 The Efficiency Problem</h3>
+    <p>
+      If the full token sequence is <code>[text_1, bbox_1, text_2, bbox_2, ..., text_N, bbox_N]</code>, the sequence length is 5N (one text + four coordinates per OCR token). For N=500, that is 2,500 tokens before any instruction or query. The LLM's attention is quadratic in sequence length — this becomes a real throughput problem on long documents.
+    </p>
+    <p>
+      LayTextLLM's answer: compress the entire bounding box representation for each token into a <em>single</em> spatial token using a learned projector.
+    </p>
+
+    <h3>3.2 Spatial Layout Projector (SLP)</h3>
+    <p>
+      The <strong>Spatial Layout Projector</strong> is a small learned network that maps a 4D bounding box coordinate vector to a single embedding in the LLM's token embedding space:
+    </p>
+    <pre><code>SLP: ℝ⁴ → ℝᵈ
+input:  (x_min, y_min, x_max, y_max)
+output: one token embedding of dimension d</code></pre>
+    <p>
+      The input sequence becomes <code>[spatial_token_1, text_token_1, spatial_token_2, text_token_2, ...]</code> — still 2N tokens, but:
+    </p>
+    <ul>
+      <li>Each spatial token is one position in the sequence, not four</li>
+      <li>The spatial token is a rich learned embedding, not raw floating-point coordinates</li>
+      <li>The LLM can learn to attend from any text token directly to the preceding spatial token to access its location</li>
+    </ul>
+    <p>
+      This gives the model spatial grounding at the same sequence-length cost as standard text inputs.
+    </p>
+
+    <h3>3.3 P-LoRA: Partial Low-Rank Adaptation</h3>
+    <p>
+      LayTextLLM fine-tunes only the LLM layers that see spatial tokens, using <strong>P-LoRA (Partial LoRA)</strong>. The intuition: standard LoRA applies low-rank updates uniformly across all attention and FFN layers. But only certain layers are responsible for grounding text content in spatial location — applying LoRA to all layers wastes parameters and risks catastrophic forgetting in layers that don't benefit from layout adaptation.
+    </p>
+    <p>
+      P-LoRA applies LoRA selectively to the attention projections that process spatial token positions, leaving layers that process pure text content untouched. This allows LayTextLLM to be initialized from a strong pre-trained LLM and adapted for layout-awareness with minimal parameter budget.
+    </p>
+
+    <h3>3.4 Training Recipe</h3>
+    <p>
+      LayTextLLM uses a two-stage training curriculum:
+    </p>
+    <p><strong>Stage 1 — Layout-Aware Next Token Prediction (pretraining):</strong></p>
+    <pre><code>Input:  [SLP(bbox_1), text_1, SLP(bbox_2), text_2, ..., SLP(bbox_N), text_N]
+Target: predict text_i given all preceding tokens
+Loss:   standard cross-entropy NTP loss on text tokens only</code></pre>
+    <p>
+      The model learns to predict the next word given all previously seen text and the spatial positions of all seen tokens. This forces the model to develop grounded spatial representations — the spatial token for a label is predictive of the value token that follows.
+    </p>
+    <p><strong>Stage 2 — Shuffled-OCR Supervised Fine-Tuning (SFT):</strong></p>
+    <pre><code>Input:  shuffled sequence of OCR tokens + their bounding boxes
+Target: answer to document understanding questions</code></pre>
+    <p>
+      In standard document understanding training, the OCR tokens appear in reading order (top-to-bottom, left-to-right). The model can learn to ignore spatial tokens and simply read the text sequentially. Shuffled-OCR disrupts this shortcut: tokens appear in random order, so the model <em>must</em> use bounding box positions to reconstruct spatial relationships. The SFT stage on shuffled input forces genuine spatial understanding rather than positional heuristics.
+    </p>
+
+    <h3>3.5 Results</h3>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Benchmark</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Task</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">LayTextLLM_all</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">DocVQA</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Document question answering</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">77.2%</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">InfoVQA</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Infographic question answering</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">42.1%</td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">FUNSD</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Form understanding (NER + linking)</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">86.4%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      FUNSD 86.4% is notably high — this benchmark requires the model to identify entities on forms and link labels to their corresponding values, precisely the kind of spatial grounding that the SLP and P-LoRA combination is designed for. Both "Name:" and its answer field might appear in different font sizes at arbitrary positions; the model must use bounding box coordinates to link them.
+    </p>
+
+    <h2>4. Comparing the Two Paradigms</h2>
+
+    <p>
+      DocLLM and LayTextLLM both fall in the OCR+LLM paradigm, but differ in how they represent spatial information:
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Aspect</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">DocLLM</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">LayTextLLM</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Spatial representation</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Disentangled attention: separate Q/K for text and bbox in attention</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">SLP: bbox → single learned token prepended to each word</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Sequence length overhead</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">5N (4 coords + 1 text per token)</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">2N (1 spatial + 1 text per token)</td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Adaptation method</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Full fine-tuning with modified attention</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">P-LoRA on spatial-attending layers only</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Training signal</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Autoregressive NTP on document tasks</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">NTP pretraining + shuffled-OCR SFT</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Against the OCR-Free paradigm, both models have a fundamental dependency on OCR quality. They excel on high-quality documents — where the OCR bounding boxes are accurate — and degrade when OCR fails. Qwen2-VL, by contrast, reads the image directly and is inherently more robust to OCR errors (at the cost of needing higher resolution inputs and more visual tokens per page).
+    </p>
+
+    <h2>5. When to Use Which Approach</h2>
+
+    <p>
+      The choice between OCR-Free and OCR+LLM is primarily a function of document corpus characteristics:
+    </p>
+    <ul>
+      <li><strong>High-quality digitally-born PDFs with complex layouts (forms, tables, financial reports):</strong> OCR+LLM models like LayTextLLM give precise spatial grounding that patch-based models must learn implicitly. The explicit bounding box coordinates are a strong inductive bias.</li>
+      <li><strong>Visually rich documents where layout carries primary meaning (charts, infographics, figures):</strong> OCR-Free models like Qwen2-VL are more capable — an infographic's meaning is often in the visual design, not just the text labels.</li>
+      <li><strong>Mixed-quality scanned archives:</strong> OCR-Free models are more robust to scan degradation, as shown in the DocDeg experiments from the previous seminar. OCR error cascades into OCR+LLM pipelines in ways that don't affect vision-based models.</li>
+      <li><strong>Low-resource languages or specialized scripts:</strong> OCR+LLM models are only as capable as the OCR system for the target language. OCR-Free models can learn script recognition end-to-end if trained on sufficient data.</li>
+    </ul>
+
+    <h2>6. Takeaways</h2>
+
+    <ul>
+      <li><strong>Spatial structure is a first-class signal in document understanding.</strong> Both DocLLM and LayTextLLM show that explicitly encoding bounding box coordinates — rather than relying on positional order — is a meaningful improvement over text-only LLM approaches.</li>
+      <li><strong>The SLP compression is a key practical insight.</strong> Reducing each bounding box from four raw coordinate values to one learned spatial token cuts sequence length in half and allows spatial information to be represented in the same embedding space as text — enabling joint attention rather than disentangled attention.</li>
+      <li><strong>Shuffled-OCR SFT forces genuine spatial grounding.</strong> Without this training trick, the model can achieve high benchmark scores by learning sequential reading heuristics that don't generalize to reordered or spatially complex layouts.</li>
+      <li><strong>Neither paradigm dominates universally.</strong> The right choice depends on document type, OCR quality, and task — and hybrid systems (VLM-based retrieval feeding into layout-aware reading) are likely the production-grade direction.</li>
+    </ul>
+
+    <div class="post-footer">
+      <a href="../index.html#blog" class="post-footer-back btn btn-outline">← All Posts</a>
+      <a href="retrieval-in-vision-space.html" class="post-footer-back btn btn-outline">Also: Retrieval in Vision Space →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>© 2026 Gyuho Shim. All rights reserved.</p>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+  });
+</script>
+
+</body>
+</html>

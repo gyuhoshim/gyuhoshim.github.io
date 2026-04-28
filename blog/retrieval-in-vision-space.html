@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retrieval in Vision Space — Gyuho Shim</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <span class="nav-name">Gyuho Shim</span>
+    <ul class="nav-links">
+      <li><a href="../index.html#home">Home</a></li>
+      <li><a href="../index.html#publications">Publications</a></li>
+      <li><a href="../index.html#projects">Projects</a></li>
+      <li><a href="../index.html#blog">Blog</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== POST HEADER ===== -->
+<div class="post-header">
+  <div class="container">
+    <a href="../index.html#blog" class="post-back">Back to Blog</a>
+    <div class="post-tag">Document Retrieval · Vision-Language Models · ColPali</div>
+    <h1 class="post-title">Retrieval in Vision Space</h1>
+    <p class="post-date">September 2025 · Gyuho Shim</p>
+  </div>
+</div>
+
+<!-- ===== POST BODY ===== -->
+<div class="post-body">
+  <div class="container">
+
+    <p>
+      Classic document retrieval treats every page as a bag of words. Run OCR, chunk into paragraphs, embed the text, and retrieve. This pipeline is well-understood — and it quietly throws away half the information on a typical page. Column alignment, table borders, font weight, spatial proximity of numbers to their labels: none of it survives OCR into a text string.
+    </p>
+    <p>
+      A newer line of work asks a different question: what if the retrieval model read the page as an image, the way a human does? This post covers two papers from my summer 2025 seminar that make this concrete — one that proposes the vision-based retrieval architecture, and one that stress-tests it against OCR-based alternatives under degraded scan conditions.
+    </p>
+
+    <h2>1. ColPali: Efficient Document Retrieval with Vision Language Models (ICLR 2025)</h2>
+
+    <h3>1.1 The Standard Pipeline and Its Failure Mode</h3>
+    <p>
+      The standard RAG pipeline for document retrieval is:
+    </p>
+    <pre><code>PDF → OCR → text chunks → text embedder → dense index → nearest-neighbor search</code></pre>
+    <p>
+      On clean, purely textual documents this works fine. But real-world document collections — financial filings, academic posters, product manuals — are visually rich. A figure caption next to a bar chart, a table where column headers span two rows, a flowchart with directional arrows: OCR extracts the characters and loses everything else. The retrieved chunk says "Q3 Revenue: 4.2B" with no indication that the number appeared in a row labeled "Asia Pacific" inside a table titled "Regional Breakdown."
+    </p>
+    <p>
+      The alternative — rendering each page as an image and using a vision-language model to understand it — was dismissed for years as too slow for indexing at scale. ColPali changes that calculus.
+    </p>
+
+    <h3>1.2 Architecture: ColBERT × PaliGemma</h3>
+    <p>
+      ColPali's architecture is the intersection of two prior ideas:
+    </p>
+    <ul>
+      <li><strong>ColBERT's Late Interaction:</strong> instead of compressing a document into one vector, keep a separate vector per token. Matching is done by a max-sim operation between query tokens and document tokens.</li>
+      <li><strong>PaliGemma's visual tokenization:</strong> a Vision Transformer (ViT) splits each page image into a grid of 16×16-pixel patches and produces one embedding per patch — a "bag of image patches," analogous to a bag of word tokens.</li>
+    </ul>
+    <p>
+      Combined, ColPali encodes a query text into a sequence of token embeddings <code>E_q</code> and each document page image into a sequence of patch embeddings <code>E_d</code>, then scores them with the <strong>Late Interaction (MaxSim)</strong> function:
+    </p>
+    <pre><code>LI(q, d) = Σᵢ max_j &lt;E_q^(i) | E_d^(j)&gt;</code></pre>
+    <p>
+      For every query token, find the most similar document patch; sum those maxima across all query tokens. The dot product <code>&lt;·|·&gt;</code> is cosine similarity after L2 normalization.
+    </p>
+    <p>
+      This is significant in two ways. First, query tokens can attend selectively to the most relevant regions of the page, rather than being forced through a single bottleneck embedding. Second, all document patch embeddings are pre-computed and stored at index time — retrieval is just a MaxSim lookup, not a full VLM forward pass.
+    </p>
+
+    <h3>1.3 ViDoRe: Visual Document Retrieval Benchmark</h3>
+    <p>
+      The paper introduces <strong>ViDoRe</strong> (Visual Document Retrieval Benchmark), a benchmark of 10 retrieval datasets spanning diverse document types: scientific figures, medical scans, administrative documents, and more. The primary metric is <strong>NDCG@5</strong> — normalized discounted cumulative gain at rank 5.
+    </p>
+    <p>
+      ColPali's results on ViDoRe:
+    </p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">System</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">NDCG@5</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Indexing speed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Standard OCR pipeline</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.66</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">7.22 s/page</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">ColPali (PaliGemma-3B)</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.81</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">0.39 s/page</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      ColPali achieves +15 NDCG@5 points over the OCR baseline while being 18× faster to index. The speed advantage comes from eliminating the OCR step entirely — a single ViT forward pass over the page image replaces the OCR + chunking + embedding pipeline.
+    </p>
+
+    <h3>1.4 Why Late Interaction Works for Pages</h3>
+    <p>
+      A page image at 448×448 pixels (ColPali's input resolution) is divided into 28×28 = 784 patches. Each patch becomes one entry in <code>E_d</code>. The query "What was Q3 revenue in Asia Pacific?" might have 9 tokens. MaxSim finds, for each query token, the single most-relevant patch — e.g., the token "Asia Pacific" will max-sim to the patch covering the relevant table row, not to a patch covering an unrelated figure on the same page.
+    </p>
+    <p>
+      The single-vector alternative must compress all 784 patches into one number — spatial layout is irrecoverably mixed together. Late Interaction preserves the spatial decomposition all the way through scoring.
+    </p>
+
+    <h3>1.5 Limitations</h3>
+    <p>
+      ColPali's main cost is storage: 784 vectors per page instead of 1. For a 1M-page corpus, a 128-dim index stores 1M × 784 × 128 × 4 bytes ≈ 400 GB. This is manageable but meaningfully larger than a single-vector index. Quantization (binary or int8) and dimension reduction via Matryoshka training are the standard mitigations.
+    </p>
+
+    <h2>2. Lost in OCR Translation? (ACM DocEng 2025)</h2>
+
+    <h3>2.1 Motivation: Do VLMs Actually Beat OCR Under Scan Degradation?</h3>
+    <p>
+      ColPali's benchmark results come from digitally-born PDFs. Real enterprise document archives contain scanned physical documents — sometimes scanned at low DPI, with ink bleed, skew, or physical damage. Under these conditions, does a VLM-based retriever still dominate, or does a robust OCR pipeline with explicit degradation handling come back?
+    </p>
+    <p>
+      "Lost in OCR Translation?" is a systematic evaluation paper that constructs a controlled degradation benchmark and measures both families of systems under each condition.
+    </p>
+
+    <h3>2.2 DocDeg: The Degradation Benchmark</h3>
+    <p>
+      The paper introduces <strong>DocDeg</strong>, a benchmark of document pages at four degradation levels:
+    </p>
+    <ul>
+      <li><strong>Level 0 — Digital copy:</strong> native PDF rendering, no degradation</li>
+      <li><strong>Level 1 — Perfect scan:</strong> clean physical scan at high DPI</li>
+      <li><strong>Level 2 — Imperfect scan:</strong> noise, slight skew, moderate DPI</li>
+      <li><strong>Level 3 — Severely degraded:</strong> heavy noise, low DPI, staining or physical damage</li>
+    </ul>
+    <p>
+      The progression simulates the actual distribution of documents in large enterprise archives, where levels 0–1 represent recently-digitized material and levels 2–3 represent older physical records.
+    </p>
+
+    <h3>2.3 Systems Compared</h3>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.87rem;margin-bottom:1rem;">
+      <thead style="background:var(--bg-alt);">
+        <tr>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">System</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Type</th>
+          <th style="text-align:left;padding:0.5rem 0.8rem;border:1px solid var(--border);">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">ColQwen2 7B</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">VLM-based retriever</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">ColPali variant on Qwen2-VL 7B backbone</td>
+        </tr>
+        <tr style="background:var(--bg-alt);">
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Nougat</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">OCR-based (specialized)</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Scientific document OCR + text embedder</td>
+        </tr>
+        <tr>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">Llama 3.2 OCR</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">OCR-based (LLM)</td>
+          <td style="padding:0.45rem 0.8rem;border:1px solid var(--border);">LLM-powered OCR + text embedder</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>2.4 Findings</h3>
+    <p>
+      The results are counterintuitive at level 0 but consistent across levels 1–3:
+    </p>
+    <ul>
+      <li><strong>Level 0 (digital):</strong> Nougat achieves the highest retrieval performance — specialized OCR on clean digitally-born PDFs is very effective. ColQwen2 is competitive but does not win.</li>
+      <li><strong>Levels 1–3 (scanned/degraded):</strong> <strong>Llama OCR consistently outperforms both alternatives</strong>, including the VLM-based system. Nougat degrades sharply: its specialized model was trained on clean scientific PDFs and generalizes poorly to scan artifacts.</li>
+      <li><strong>ColQwen2 is the most consistent across degradation levels</strong> — it never hits the highs of Nougat at level 0 or Llama at levels 1–3, but it also never collapses. The VLM is more degradation-robust than Nougat but is consistently outperformed by a strong LLM-based OCR pipeline.</li>
+    </ul>
+
+    <h3>2.5 Interpretation</h3>
+    <p>
+      This finding has a clear reading: VLM-based retrieval is not a universal improvement over OCR-based retrieval. ColPali/ColQwen2's strength is on visually complex documents where layout carries meaning that OCR discards. When the bottleneck is scan quality rather than layout complexity, a capable LLM doing OCR — which has been trained on noisy text from the web and is inherently robust to character-level noise — is a strong baseline.
+    </p>
+    <p>
+      The practical implication for system design: document archive composition matters. If the corpus is primarily scanned physical documents at variable quality, LLM-powered OCR + text retrieval is the pragmatic choice. If the corpus is visually-rich digitally-born PDFs, VLM-based retrieval offers meaningful gains. Most real archives contain both.
+    </p>
+
+    <h2>3. Takeaways</h2>
+
+    <ul>
+      <li><strong>Late Interaction is a better match for document pages than single-vector retrieval.</strong> ColPali's MaxSim over patch embeddings preserves spatial structure that a pooled embedding discards, yielding +15 NDCG@5 on ViDoRe at 18× faster indexing than OCR pipelines.</li>
+      <li><strong>VLM-based retrieval does not universally dominate.</strong> Under scan degradation, a capable LLM OCR system (Llama 3.2) outperforms ColQwen2 7B, because OCR robustness is the binding constraint — not layout understanding.</li>
+      <li><strong>Specialized OCR models are brittle.</strong> Nougat is best-in-class on clean digital PDFs and worst-in-class on degraded scans. Domain-specific tools need domain-matched data.</li>
+      <li><strong>Retriever architecture choice should be driven by the corpus.</strong> The two paradigms are complements, not substitutes. A production system might route based on predicted document quality.</li>
+    </ul>
+
+    <div class="post-footer">
+      <a href="../index.html#blog" class="post-footer-back btn btn-outline">← All Posts</a>
+      <a href="multimodal-rag-long-context-docvqa.html" class="post-footer-back btn btn-outline">Also: Multimodal RAG in Long-Context DocVQA →</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>© 2026 Gyuho Shim. All rights reserved.</p>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+  });
+</script>
+
+</body>
+</html>
