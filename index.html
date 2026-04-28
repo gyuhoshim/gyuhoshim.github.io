@@ -67,7 +67,7 @@
       <h1 class="en">Hi, I'm Gyuho Shim 👋</h1>
       <h1 class="ko" style="display:none">안녕하세요, 심규호입니다 👋</h1>
       <p class="tagline en">Multimodal/LLM AI Engineer specializing in document intelligence — building AI systems that are robust, practical, and reliable.</p>
-      <p class="tagline ko" style="display:none">문서 지능 특화 멀티모달/LLM AI 엔지니어 — 견고하고 실용적이며 신뢰할 수 있는 AI 시스템 구축.</p>
+      <p class="tagline ko" style="display:none">문서 지능 전문 멀티모달/LLM AI 엔지니어 — 견고하고 실용적이며 신뢰할 수 있는 AI 시스템을 만들어갑니다.</p>
       <p class="bio en">
         Master's student at <strong>Korea University NLP&amp;AI Lab</strong>, advised by Prof. Heuiseok Lim.<br/>
         Previously BS (Triple Major: CS, Math, Statistics) at <strong>University of Wisconsin–Madison</strong>.<br/>
@@ -75,8 +75,8 @@
       </p>
       <p class="bio ko" style="display:none">
         고려대학교 NLP&amp;AI Lab 석사과정 (지도교수: 임희석 교수님).<br/>
-        이전에 위스콘신-매디슨 대학교 CS·수학·통계 트리플 전공 학사 취득.<br/>
-        Document AI, Multimodal RAG, LLM 학습 및 평가 연구.
+        위스콘신-매디슨 대학교에서 CS·수학·통계 삼중 전공으로 학사 학위 취득.<br/>
+        Document AI, Multimodal RAG, LLM 학습 및 평가를 연구하고 있습니다.
       </p>
       <div class="hero-links">
         <a href="bio/resume.pdf" class="btn" target="_blank">CV (PDF)</a>
@@ -197,7 +197,7 @@
             OCR errors — from font degradation to complex multi-column layouts — fundamentally compromise downstream Document AI. REVISE addresses this by introducing a comprehensive hierarchical taxonomy of common OCR errors and a synthetic data contamination strategy that injects realistic OCR-like noise at the character, word, and structural level. Trained on these synthetic datasets, the model learns to robustly reconstruct original document structure, significantly improving QA and retrieval accuracy without requiring costly real-error annotations.
           </div>
           <div class="pub-desc ko" style="display:none">
-            폰트 열화에서 복잡한 다단 레이아웃까지 다양한 OCR 오류를 포괄하는 계층적 분류 체계를 제안하고, 합성 데이터 오염 전략으로 현실적인 OCR 노이즈를 주입해 문서 원본 구조를 복원하는 프레임워크. 실제 오류 어노테이션 없이도 QA 및 검색 정확도를 유의미하게 개선.
+            폰트 열화에서 복잡한 다단 레이아웃까지 다양한 OCR 오류를 포괄하는 계층적 분류 체계를 제안하고, 합성 데이터 오염 전략을 통해 현실적인 OCR 노이즈를 주입하여 문서의 원본 구조를 복원하는 프레임워크. 실제 오류 어노테이션 없이도 QA 및 검색 정확도를 유의미하게 개선.
           </div>
           <div class="pub-links">
             <a href="https://arxiv.org/abs/2604.08115" target="_blank">arXiv</a>
@@ -216,7 +216,7 @@
             Standard benchmark scores mask what abilities a model actually uses. Benchmark Profiling decomposes performance into 10 cognitively grounded abilities — from contextual recall to multi-step reasoning — using gradient-based importance scoring and targeted parameter ablation. The resulting Ability Impact Score (AIS) reveals that most benchmarks require a mixture of abilities, similarly-labeled datasets often rely on distinct ability profiles, and narrow domain fine-tuning yields only modest gains on code benchmarks. Analyzed across three instruction-tuned models and ten benchmarks.
           </div>
           <div class="pub-desc ko" style="display:none">
-            표준 벤치마크 점수가 숨기는 실제 모델 능력을 10가지 인지적 능력으로 분해. 그래디언트 기반 중요도 점수와 타겟 파라미터 제거를 통해 Ability Impact Score(AIS) 산출. 대부분의 벤치마크가 복수의 능력을 요구하며, 유사 레이블 데이터셋도 서로 다른 능력 프로파일을 가짐을 발견.
+            표준 벤치마크 점수에 가려진 실제 모델 능력을 10가지 인지 능력으로 분해. 그래디언트 기반 중요도 점수와 타깃 파라미터 제거를 통해 Ability Impact Score(AIS) 산출. 대부분의 벤치마크가 복수의 능력을 요구하며, 유사하게 분류된 데이터셋도 서로 다른 능력 프로파일을 지님을 확인.
           </div>
           <div class="pub-links">
             <a href="https://arxiv.org/abs/2510.01232" target="_blank">arXiv</a>
@@ -235,7 +235,7 @@
             Flat text chunking loses the structural context that makes complex documents interpretable. HiKEY constructs an offline heterogeneous graph from DHP-parsed document hierarchies, then performs (1) hierarchical coarse-to-fine retrieval that rapidly narrows from global routing to local section-level candidates, and (2) an ancestry-aware subgraph assembly that captures cross-section dependencies. Across multi-page ODQA benchmarks, HiKEY outperforms text-based RAG by up to 4.5% and full-page RAG by up to 6.8%, with strong end-to-end EM/ANLS gains.
           </div>
           <div class="pub-desc ko" style="display:none">
-            DHP 파싱 기반 오프라인 이종 계층 그래프를 구축하고, 전역 라우팅에서 로컬 섹션 수준 후보로 좁혀가는 계층적 코스-투-파인 검색과 조상 인식 서브그래프 조합을 수행. 텍스트 기반 RAG 대비 최대 4.5%, 전체 페이지 RAG 대비 최대 6.8% 성능 향상.
+            DHP 파싱 기반 오프라인 이종 계층 그래프를 구축하여, 전역 라우팅에서 로컬 섹션 후보로 좁혀가는 계층적 검색과 조상 인식 서브그래프 조합을 수행. 텍스트 기반 RAG 대비 최대 4.5%, 전체 페이지 RAG 대비 최대 6.8% 성능 향상.
           </div>
         </div>
       </div>
@@ -313,7 +313,7 @@
           KULLM-R is a Korean reasoning model built on GRPO reinforcement learning in VERL. The work introduces verifiable reward functions for correctness and Korean answer consistency, along with an adaptive length penalty that reduces verbosity on easy problems while preserving reasoning depth on hard ones.
         </div>
         <div class="pub-desc ko" style="display:none">
-          VERL 기반 GRPO 강화학습으로 구축한 한국어 추론 모델. 정답 일치도 및 한국어 답변 일관성에 대한 검증 가능한 보상 함수와, 쉬운 문제의 과도한 장황함을 줄이면서 어려운 문제의 추론 깊이를 유지하는 적응형 길이 패널티 도입.
+          VERL 기반 GRPO 강화학습으로 구축한 한국어 추론 모델. 정답 일치도와 한국어 답변 일관성에 대한 검증 가능한 보상 함수, 쉬운 문제의 장황함은 줄이면서 어려운 문제의 추론 깊이는 유지하는 적응형 길이 패널티 도입.
         </div>
         <div class="pub-links">
           <a href="https://huggingface.co/nobrand/KULLM-R" target="_blank">Model</a>
@@ -328,7 +328,7 @@
           Proposes a query-aware LLM routing framework that dynamically selects the best specialist model from a pool of 17 expert LLMs per query. Using confidence-based labeling, the routing classifier removes dependency on manual domain annotation and beats the domain-routing baseline on 12 out of 14 MMLU-Pro sub-domains, achieving +10pp over any single specialist on out-of-distribution benchmarks.
         </div>
         <div class="pub-desc ko" style="display:none">
-          17개 전문 LLM 풀에서 쿼리별로 최적 모델을 동적으로 선택하는 라우팅 프레임워크. 신뢰도 기반 레이블링으로 수동 도메인 어노테이션 의존성 제거. MMLU-Pro 14개 서브도메인 중 12개에서 도메인 라우팅 기준선 초과, OOD 벤치마크에서 단일 전문 모델 대비 +10pp 달성.
+          17개 전문 LLM 풀에서 쿼리별 최적 모델을 동적으로 선택하는 라우팅 프레임워크. 신뢰도 기반 레이블링으로 수동 도메인 어노테이션 의존성 제거. MMLU-Pro 14개 서브도메인 중 12개에서 도메인 라우팅 기준선 초과, OOD 벤치마크에서 단일 전문 모델 대비 +10pp 달성.
         </div>
       </div>
 
@@ -340,7 +340,7 @@
           Technical report introducing the VAETKI series of large language models at 100B, 20B, and 7B scales, developed for national data sovereignty and industrial AI transformation. The models use a decoder-only Mixture-of-Experts (MoE) architecture with Multi-Latent Attention (MLA) and Local-Global Interleaving, achieving an 83% reduction in KV cache size and a 40% gain in training efficiency over conventional MLA. Pre-trained on a curated 5-trillion-token corpus and refined through a seven-stage pipeline including Reasoning-centric SFT, High-Quality SFT, and DPO on 8M instruction-tuning triplets. Evaluation on Korean benchmarks (CLIcK, KoBALT) and IFEval demonstrates strong multilingual and instruction-following capabilities.
         </div>
         <div class="pub-desc ko" style="display:none">
-          국가 데이터 주권 및 산업 AI 전환을 위한 100B·20B·7B 규모 VAETKI 시리즈 소개. MoE + MLA + Local-Global Interleaving 아키텍처로 KV 캐시 83% 절감, 학습 효율 40% 향상. 5조 토큰 사전학습 및 7단계 후처리 파이프라인 적용. CLIcK·KoBALT·IFEval에서 강력한 한국어·다국어·명령 수행 능력 검증.
+          국가 데이터 주권과 산업 AI 전환을 위한 100B·20B·7B 규모 VAETKI 시리즈 소개. MoE + MLA + Local-Global Interleaving 아키텍처로 KV 캐시 83% 절감, 학습 효율 40% 향상. 5조 토큰 사전학습 및 7단계 후처리 파이프라인 적용. CLIcK·KoBALT·IFEval에서 한국어·다국어·명령 수행 능력 검증.
         </div>
         <div class="pub-links">
           <a href="https://github.com/wbl-ncai/VAETKI/blob/releases/v1.0.0/VAETKI_Technical_Report.pdf" target="_blank">PDF</a>
@@ -375,9 +375,9 @@
           <li>Built a <strong>200K-pair DPO set</strong> pairing verified syntheses against failure modes (wrong answers, repetition, verbosity) and long-context data.</li>
         </ul>
         <ul class="proj-bullets ko" style="display:none">
-          <li>VAETKI 기술 보고서에 채택된 <strong>쿼리 필터링 기준</strong> 설계: 200만 고품질 SFT 서브셋을 필터링하는 6차원 명확성 루브릭(1–10, 결정론적 동점 처리) 및 도메인별 임계값 적용 <strong>Qwen3-4B 명확성 태거</strong> 학습.</li>
-          <li>수학/코드 <strong>정답 보장 추론 합성</strong>에 기여: 합성된 추론 체인을 알려진 정답과 대조 검증.</li>
-          <li>검증된 합성과 실패 사례(오답, 반복, 장황함)를 대조한 <strong>20만 쌍 DPO 세트</strong> 및 긴 컨텍스트 데이터 구축.</li>
+          <li>VAETKI 기술 보고서에 채택된 <strong>쿼리 필터링 기준</strong> 설계: 200만 건의 고품질 SFT 서브셋을 필터링하는 6차원 명확성 루브릭(1–10, 결정론적 동점 처리) 및 도메인별 임계값을 적용한 <strong>Qwen3-4B 명확성 태거</strong> 학습.</li>
+          <li>수학·코드 <strong>정답 보장 추론 합성</strong>에 기여: 합성된 추론 체인을 알려진 정답과 대조하여 검증.</li>
+          <li>검증된 합성 예시와 실패 사례(오답, 반복, 장황함)를 쌍으로 묶은 <strong>20만 쌍 DPO 세트</strong> 및 긴 컨텍스트 데이터 구축.</li>
         </ul>
       </div>
 
@@ -397,8 +397,8 @@
           <li>Designed a <strong>3-layer nested loss</strong> (Matryoshka × SelfGuide × Cached InfoNCE) supporting 7 dims (128–2048) for retraining-free accuracy/size trade-offs.</li>
         </ul>
         <ul class="proj-bullets ko" style="display:none">
-          <li>LoRA(파라미터 1.5%, 비전 인코더 동결)로 32만5천 쌍에 FAISS 하드 네거티브 마이닝을 적용해 <strong>Qwen3-VL-Embedding-2B</strong>를 한국어 검색기로 파인튜닝.</li>
-          <li>재학습 없이 정확도/크기 트레이드오프를 지원하는 7가지 차원(128–2048)의 <strong>3중 중첩 손실</strong>(Matryoshka × SelfGuide × Cached InfoNCE) 설계.</li>
+          <li>FAISS 하드 네거티브 마이닝을 적용한 32만5천 쌍으로 LoRA(파라미터 1.5%, 비전 인코더 동결)를 활용해 <strong>Qwen3-VL-Embedding-2B</strong>를 한국어 검색기로 파인튜닝.</li>
+          <li>재학습 없이도 정확도와 크기 간 트레이드오프를 지원하는 7가지 차원(128–2048)의 <strong>3중 중첩 손실</strong>(Matryoshka × SelfGuide × Cached InfoNCE) 설계.</li>
         </ul>
         <div class="pub-links">
           <a href="https://gyuhoshim.github.io/blog/training-korean-visual-document-retriever.html" target="_blank">Blog</a>
@@ -419,9 +419,9 @@
           <li>Extending to document-level hierarchy modeling; work in progress toward conference submission.</li>
         </ul>
         <ul class="proj-bullets ko" style="display:none">
-          <li>레이아웃 쿼리 토큰에서 풀링된 LLM 은닉 상태로 바운딩 박스를 회귀하는 5천만 파라미터 크로스 어텐션 디코더를 <strong>Qwen3-VL-4B</strong>에 결합한 멀티모달 문서 파서 구축.</li>
-          <li><strong>3단계 커리큘럼</strong>(LM 단독 → 공동 → 동결 LLM 그라운딩) 설계; LLM 동결 시 추가된 4개 레이아웃 쿼리 임베딩 행만 학습하는 그래디언트 마스킹 훅 적용.</li>
-          <li>문서 수준 계층 모델링으로 확장 중; 학술대회 제출 준비 중.</li>
+          <li>레이아웃 쿼리 토큰에서 풀링된 LLM 은닉 상태로 바운딩 박스를 회귀하는 5천만 파라미터 크로스 어텐션 디코더를 <strong>Qwen3-VL-4B</strong>에 결합하여 멀티모달 문서 파서 구축.</li>
+          <li><strong>3단계 커리큘럼</strong>(LM 단독 → 공동 → 동결 LLM 그라운딩) 설계; LLM 동결 시 새로 추가된 4개 레이아웃 쿼리 임베딩 행만 학습하도록 그래디언트 마스킹 훅 적용.</li>
+          <li>문서 수준 계층 구조 모델링으로 확장 중; 학술대회 제출 준비 중.</li>
         </ul>
       </div>
 
@@ -441,7 +441,7 @@
         </ul>
         <ul class="proj-bullets ko" style="display:none">
           <li>한국어 추론 태스크를 위한 <strong>VERL</strong> 기반 <strong>GRPO</strong> 강화학습 구현.</li>
-          <li>정답 일치도, 한국어 답변 일관성에 대한 검증 가능한 보상 함수와, 쉬운 문제의 장황함을 줄이면서 어려운 문제의 깊이를 유지하는 <strong>적응형 길이 패널티</strong> 설계.</li>
+          <li>정답 일치도와 한국어 답변 일관성에 대한 검증 가능한 보상 함수, 쉬운 문제의 장황함은 줄이면서 어려운 문제의 추론 깊이는 유지하는 <strong>적응형 길이 패널티</strong> 설계.</li>
         </ul>
       </div>
 
@@ -459,9 +459,9 @@
           <li>Engineered a <strong>hierarchical document parser</strong> that infers logical document structure and organization, powering downstream chunking and analysis.</li>
         </ul>
         <ul class="proj-bullets ko" style="display:none">
-          <li>모델별 튜닝 및 자동 생성 레지스트리를 갖춘 <strong>6개 레이아웃 백엔드</strong>(DETR, VGT, DHP, MinerU2.5, DocLayout-YOLO, 휴리스틱) 통합 파이프라인으로 PDF/DOCX/XLSX/PPTX/TXT를 처리하는 엔드-투-엔드 Document AI 시스템(FastAPI + React) 구축.</li>
-          <li><strong>근거 중심 기능</strong> 제공: 구조 인식 검색, 근거 패키징 QA, 계층적 요약, 다중 문서 비교.</li>
-          <li>다운스트림 청킹 및 분석을 지원하는 문서 논리 구조를 추론하는 <strong>계층적 문서 파서</strong> 설계.</li>
+          <li>모델별 튜닝 및 자동 생성 레지스트리를 갖춘 <strong>6개 레이아웃 백엔드</strong>(DETR, VGT, DHP, MinerU2.5, DocLayout-YOLO, 휴리스틱)를 통합하여 PDF/DOCX/XLSX/PPTX/TXT를 처리하는 엔드-투-엔드 Document AI 시스템(FastAPI + React) 구축.</li>
+          <li><strong>근거 중심 기능</strong> 제공: 구조 인식 검색, 근거 기반 QA, 계층적 요약, 다중 문서 비교.</li>
+          <li>다운스트림 청킹 및 분석을 위해 문서의 논리 구조를 추론하는 <strong>계층적 문서 파서</strong> 설계.</li>
         </ul>
       </div>
 
@@ -479,7 +479,7 @@
         </ul>
         <ul class="proj-bullets ko" style="display:none">
           <li>Slack/Jira/Drive를 하나의 지식 그래프로 통합하는 엔터프라이즈 <strong>GraphRAG 플랫폼</strong> 설계: BM25 + 벡터(HNSW) + 그래프 순회 하이브리드 검색.</li>
-          <li>환각과 임베딩 비용을 절감하기 위해 LLM 호출보다 구조화된 메타데이터를 우선시하는 <strong>5단계 신뢰도 게이트 추출</strong>(임계값 ≥0.7) 설계.</li>
+          <li>환각을 줄이고 임베딩 비용을 절감하기 위해 LLM 호출보다 구조화된 메타데이터를 우선시하는 <strong>5단계 신뢰도 게이트 추출</strong>(임계값 0.7 이상) 설계.</li>
         </ul>
       </div>
 
@@ -497,9 +497,9 @@
           <li>Designed <strong>confidence-based labeling</strong> for the routing classifier, removing domain-annotation dependency; beat domain-routing baseline on 12/14 MMLU-Pro sub-domains.</li>
         </ul>
         <ul class="proj-bullets ko" style="display:none">
-          <li>다중 LLM 시스템에 대한 <strong>KT 18개월 공동 연구</strong> 공동 주도; 논문 2편 공저(HCLT 2024 + ACL 심사 중).</li>
+          <li>다중 LLM 시스템을 주제로 한 <strong>KT 18개월 공동 연구</strong> 공동 주도; 논문 2편 공저(HCLT 2024 + ACL 심사 중).</li>
           <li>17개 전문 모델 중 쿼리별 최적 모델을 선택하는 <strong>LLM 라우팅 프레임워크</strong> 주도; OOD 벤치마크(MMLU-Pro, AGIEval)에서 단일 전문 모델 대비 +10pp 달성.</li>
-          <li>도메인 어노테이션 의존성을 제거하는 라우팅 분류기용 <strong>신뢰도 기반 레이블링</strong> 설계; MMLU-Pro 14개 서브도메인 중 12개에서 도메인 라우팅 기준선 초과.</li>
+          <li>라우팅 분류기를 위한 <strong>신뢰도 기반 레이블링</strong> 설계로 도메인 어노테이션 의존성 제거; MMLU-Pro 14개 서브도메인 중 12개에서 도메인 라우팅 기준선 초과.</li>
         </ul>
       </div>
 
@@ -535,12 +535,12 @@
         <li><strong>Data:</strong> Built multi-million-scale data curation pipelines spanning clarity-based query filtering, correctness-verified reasoning synthesis, document image-text curation, and FAISS hard-negative mining.</li>
       </ul>
       <ul class="exp-bullets ko" style="display:none">
-        <li><strong>연구:</strong> ACL, EMNLP 등 최우수 학술대회에서 10편 이상 공저; 문서 이해, 멀티모달 검색, LLM 오케스트레이션, 추론, 기계론적 해석 가능성 연구.</li>
-        <li><strong>LLM/LVLM 학습:</strong> LLM, LVLM, 비전-언어 검색기 학습 주도; 학술 모델 및 컨소시엄 규모 파운데이션 모델에 기여.</li>
+        <li><strong>연구:</strong> ACL, EMNLP 등 최우수 학술대회에서 10편 이상 공저; 문서 이해, 멀티모달 검색, LLM 오케스트레이션, 추론, 기계론적 해석 가능성 분야 연구.</li>
+        <li><strong>LLM/LVLM 학습:</strong> LLM, LVLM, 비전-언어 검색기 학습 주도; 학술 모델 및 컨소시엄 규모의 파운데이션 모델 개발에 기여.</li>
         <li><strong>Document AI:</strong> 레이아웃 그라운딩, 크로스 페이지 계층 구조, 시각적 문서 검색을 포괄하는 멀티모달 문서 파서 및 비전-언어 검색기 구축.</li>
         <li><strong>Multimodal RAG:</strong> 다중 문서 추론 및 계층적 지식 통합을 포함한 멀티모달 RAG 프레임워크 엔드-투-엔드 설계 및 구현.</li>
-        <li><strong>평가:</strong> 다중 문서 QA 벤치마크 설계 및 모델 반복을 위한 재사용 가능한 평가 레시피·진단 워크플로우 구축.</li>
-        <li><strong>데이터:</strong> 명확성 기반 쿼리 필터링, 정답 검증 추론 합성, 문서 이미지-텍스트 큐레이션, FAISS 하드 네거티브 마이닝을 포괄하는 수백만 규모 데이터 큐레이션 파이프라인 구축.</li>
+        <li><strong>평가:</strong> 다중 문서 QA 벤치마크 설계 및 모델 개선을 위한 재사용 가능한 평가 레시피·진단 워크플로우 구축.</li>
+        <li><strong>데이터:</strong> 명확성 기반 쿼리 필터링, 정답 검증 기반 추론 합성, 문서 이미지-텍스트 큐레이션, FAISS 하드 네거티브 마이닝을 포괄하는 수백만 건 규모의 데이터 큐레이션 파이프라인 구축.</li>
       </ul>
 
       <div class="exp-item" style="margin-top:1.5rem;">
@@ -601,9 +601,9 @@
         <li>Analyzed ad performance and app customer data (churn, ad placement value, conversions); applied NLTK sentiment analysis on reviews to inform promotional messaging.</li>
       </ul>
       <ul class="exp-bullets ko" style="display:none">
-        <li>Python/SQL/Excel 클라이언트 보고서 자동화로 생성 시간 30% 단축.</li>
-        <li>주간 동기화에서 SQL 및 Google Analytics 데이터 요청으로 아모레퍼시픽 마케팅 협력.</li>
-        <li>광고 성과 및 앱 고객 데이터(이탈, 광고 배치 가치, 전환) 분석; NLTK 감성 분석으로 프로모션 메시지 개선.</li>
+        <li>Python/SQL/Excel을 활용한 클라이언트 보고서 자동화로 생성 시간 30% 단축.</li>
+        <li>주간 회의를 통해 아모레퍼시픽 마케팅팀과 SQL 및 Google Analytics 데이터 관련 업무 협력.</li>
+        <li>광고 성과 및 앱 고객 데이터(이탈률, 광고 효과, 전환율) 분석; NLTK 감성 분석을 통해 프로모션 메시지 개선.</li>
       </ul>
 
       <div class="exp-item" style="margin-top:1.5rem;">
@@ -623,7 +623,7 @@
         <li>Led a 6-person data science team on a 'Zero Hunger' research project covering route optimization, supply chain, and food security analysis.</li>
       </ul>
       <ul class="exp-bullets ko" style="display:none">
-        <li>핵심 임원으로서 학기 학술 프로그래밍 구성, 프로젝트와 클럽 목표 정렬.</li>
+        <li>핵심 임원으로서 학기 학술 프로그래밍 구성, 클럽 목표에 맞게 프로젝트 방향 조율.</li>
         <li>경로 최적화, 공급망, 식품 안보 분석을 다루는 '기아 종식' 연구 프로젝트에서 6인 데이터 사이언스 팀 주도.</li>
       </ul>
 
@@ -643,7 +643,7 @@
         <li>Directed organizational planning through meeting agendas, goal-setting, and 1:1s with group leads.</li>
       </ul>
       <ul class="exp-bullets ko" style="display:none">
-        <li>회의 안건, 목표 설정, 그룹 리드와의 1:1 미팅을 통해 조직 계획 주도.</li>
+        <li>회의 안건, 목표 설정, 그룹 리드와의 1:1 미팅을 통해 조직 운영 계획 수립 및 주도.</li>
       </ul>
 
     </div>
@@ -677,7 +677,7 @@
         <div class="blog-content">
           <a href="blog/hierarchical-document-parsing.html" class="blog-title">Understanding Hierarchical Document Parsing for RAG Systems</a>
           <p class="blog-excerpt en">Why flat chunking breaks complex documents — and how hierarchy-aware parsing unlocks better retrieval and reasoning.</p>
-          <p class="blog-excerpt ko" style="display:none">플랫 청킹이 복잡한 문서를 망가뜨리는 이유, 그리고 계층 인식 파싱이 더 나은 검색과 추론을 가능하게 하는 방법.</p>
+          <p class="blog-excerpt ko" style="display:none">플랫 청킹이 복잡한 문서를 제대로 처리하지 못하는 이유와, 계층 인식 파싱이 검색·추론 성능을 높이는 방법.</p>
         </div>
       </li>
 
@@ -701,7 +701,7 @@
         <div class="blog-content">
           <a href="blog/multimodal-rag-long-context-docvqa.html" class="blog-title">Multimodal RAG in Long-Context DocVQA</a>
           <p class="blog-excerpt en">How M3DocRAG and MoLoRAG extend retrieval-augmented generation to multi-page, multi-document settings — visual retrieval with ColPali, page graph traversal, and VLM-based logical scoring.</p>
-          <p class="blog-excerpt ko" style="display:none">M3DocRAG와 MoLoRAG가 멀티 페이지·멀티 문서 설정으로 RAG를 확장하는 방법 — ColPali 시각 검색, 페이지 그래프 탐색, VLM 기반 논리 관련성 점수.</p>
+          <p class="blog-excerpt ko" style="display:none">M3DocRAG와 MoLoRAG가 멀티 페이지·멀티 문서 환경으로 RAG를 확장하는 방법 — ColPali 시각 검색, 페이지 그래프 탐색, VLM 기반 관련성 점수.</p>
         </div>
       </li>
 
