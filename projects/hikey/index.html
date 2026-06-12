@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<meta name="theme-color" content="#ffffff">
+<title>HiKEY</title>
+<meta name="description" content="HiKEY: Hierarchical Multimodal Retrieval for Open-Domain Document Question Answering. ACL 2026.">
+<meta property="og:title" content="HiKEY — Hierarchical multimodal retrieval for industrial ODQA">
+<meta property="og:description" content="Elevate document hierarchy to a first-class retrieval signal. +12.9% retrieval recall, +6.8% end-to-end QA over the strongest baseline.">
+
+<link rel="stylesheet" href="./bulma.min.css">
+
+<style>
+  html, body {
+    background-color: #ffffff !important;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Pretendard', 'Noto Sans KR', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #1a1a1a;
+  }
+  .publication-title {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Pretendard', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #0a0a0a !important;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .publication-subtitle {
+    font-family: Georgia, 'Times New Roman', 'Noto Serif KR', serif;
+    font-weight: normal;
+    font-style: italic;
+    color: #2c2c2c !important;
+  }
+  .title, h1.title, h2.title, h3.title, h4.title, h5.title, h6.title {
+    color: #1a1a1a !important;
+  }
+  .subtitle.is-size-3 {
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  .content, .content p, .content li, .content td {
+    color: #2c2c2c;
+  }
+  p {
+    color: #2c2c2c;
+  }
+  .publication-authors {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Pretendard', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #2c2c2c;
+  }
+  .publication-authors a {
+    color: hsl(204, 86%, 33%) !important;
+  }
+  .publication-authors a:hover {
+    text-decoration: underline;
+  }
+  .author-block {
+    display: inline-block;
+    margin-right: 0.4em;
+  }
+  .publication-links {
+    margin-top: 1.5rem;
+  }
+  .link-block a {
+    margin: 0.25rem;
+  }
+  .hero.teaser .hero-body {
+    padding-top: 0;
+    padding-bottom: 3rem;
+  }
+  .hero-body img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  .hero.teaser .subtitle {
+    margin-top: 1.25rem;
+    font-size: 0.95rem;
+    color: #4a4a4a;
+  }
+  .section {
+    padding: 3rem 1.5rem;
+  }
+  pre.bibtex-block {
+    background-color: #f5f5f5;
+    color: #2c2c2c;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    border-radius: 4px;
+    overflow-x: auto;
+    position: relative;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .stat-card-col {
+    position: relative;
+  }
+  @media (min-width: 769px) {
+    .stat-card-col:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 20%;
+      bottom: 20%;
+      width: 1px;
+      background: #d8d8d8;
+    }
+  }
+  .bibtex-wrapper {
+    position: relative;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    padding: 0.35rem 0.85rem;
+    background: white;
+    color: #555;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover {
+    background: #f0f0f0;
+  }
+  .copy-btn.copied {
+    background: #48c774;
+    color: white;
+    border-color: #48c774;
+  }
+  table.results {
+    margin: 1rem auto;
+    border-collapse: collapse;
+  }
+  table.results th, table.results td {
+    padding: 0.6rem 0.9rem;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  table.results th {
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #888;
+  }
+  table.results td:first-child, table.results th:first-child {
+    text-align: left;
+  }
+  table.results tr.dim td {
+    color: #999;
+    font-style: italic;
+  }
+  table.results tr.ours td {
+    border-top: 2px solid #c0392b;
+    font-weight: 600;
+    background: #fdf2f0;
+    color: #1a1a1a;
+  }
+  table.results tr.group-header td {
+    font-style: italic;
+    color: #888;
+    background: #fafafa;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    padding-top: 0.85rem;
+  }
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-scroll table.results {
+    min-width: 480px;
+  }
+  .delta-positive {
+    color: #c0392b;
+    font-weight: 600;
+  }
+  .ablation-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  .ablation-value {
+    font-weight: 700;
+    color: #c0392b;
+    font-size: 1.2rem;
+  }
+  .ablation-group {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+    font-weight: 700;
+    margin: 1.1rem 0 0.35rem;
+  }
+  .highlight-stat {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #c0392b;
+  }
+  .stat-card {
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }
+  .stat-card .value {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #c0392b;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .stat-card .label {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  .stat-card .meta {
+    color: #888;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  .contribution-list {
+    margin-top: 1.5rem;
+  }
+  .contribution-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.1rem;
+    margin-bottom: 1.4rem;
+  }
+  .contribution-num {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    background: #c0392b;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-top: 0.1rem;
+  }
+  .contribution-text {
+    flex: 1;
+    color: #2c2c2c;
+    line-height: 1.55;
+  }
+  .contribution-text strong {
+    color: #1a1a1a;
+  }
+  /* Walkthrough (Pipeline stages) */
+  .walkthrough {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem 1.5rem 1.75rem;
+  }
+  .walk-steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  .walk-step {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 0.85rem 0.5rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    justify-content: center;
+    font-family: inherit;
+    transition: color 0.18s, border-color 0.18s;
+  }
+  .walk-step:hover:not(.active) {
+    color: #555;
+  }
+  .walk-step.active {
+    color: #c0392b;
+    border-bottom-color: #c0392b;
+  }
+  .walk-num {
+    display: inline-flex;
+    width: 1.65rem;
+    height: 1.65rem;
+    align-items: center;
+    justify-content: center;
+    background: #e8e8e8;
+    color: #555;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .walk-step.active .walk-num {
+    background: #c0392b;
+    color: #ffffff;
+  }
+  .walk-pane {
+    display: none;
+  }
+  .walk-pane.active {
+    display: block;
+  }
+  .walk-desc {
+    color: #2c2c2c;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+  .walk-desc code {
+    background: #f4f4f5;
+    padding: 0.08rem 0.4rem;
+    border-radius: 3px;
+    font-size: 0.88em;
+    color: #1a1a1a;
+  }
+  .pipeline-box {
+    background: #fafafa;
+    border-left: 3px solid #c0392b;
+    border-radius: 0 4px 4px 0;
+    padding: 1rem 1.15rem;
+    margin-top: 0.85rem;
+    font-size: 0.9rem;
+    color: #2c2c2c;
+    line-height: 1.55;
+  }
+  .pipeline-box code {
+    background: #fff;
+    border: 1px solid #f0d4cf;
+  }
+  .pipeline-eq {
+    display: block;
+    background: #ffffff;
+    border: 1px dashed #f0d4cf;
+    border-radius: 4px;
+    padding: 0.65rem 0.85rem;
+    margin: 0.75rem 0;
+    font-family: ui-monospace, 'SF Mono', Consolas, monospace;
+    font-size: 0.83rem;
+    color: #1a1a1a;
+    overflow-x: auto;
+  }
+  @media (max-width: 768px) {
+    .walk-step {
+      font-size: 0.82rem;
+      padding: 0.7rem 0.3rem;
+    }
+    .walk-label {
+      display: none;
+    }
+    .walk-step .walk-num {
+      width: 2rem;
+      height: 2rem;
+      font-size: 1rem;
+    }
+  }
+  footer.footer {
+    background-color: #fafafa;
+    padding: 2rem 1.5rem;
+  }
+  footer .content {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #777;
+  }
+  footer .content a {
+    color: #3273dc;
+  }
+  .back-link {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    font-size: 0.85rem;
+    color: #888;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(6px);
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid #e0e0e0;
+    text-decoration: none;
+    z-index: 100;
+    transition: all 0.18s;
+  }
+  .back-link:hover {
+    color: #c0392b;
+    border-color: #f0d4cf;
+  }
+</style>
+</head>
+<body>
+
+<a href="../../index.html" class="back-link">&larr; Back</a>
+
+<!-- ════════════ HERO ════════════ -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+
+          <h1 class="title is-1 publication-title">HiKEY</h1>
+          <h2 class="subtitle is-size-3 publication-subtitle">
+            Hierarchical Multimodal Retrieval<br>
+            for Open-Domain Document Question Answering
+          </h2>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              Joongmin Shin<sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Gyuho Shim<sup>3</sup>,
+            </span>
+            <span class="author-block">
+              Jeongbae Park<sup>1</sup>,
+            </span>
+            <span class="author-block">
+              Jaehyung Seo<sup>2&ddagger;</sup>,
+            </span>
+            <span class="author-block">
+              Heuiseok Lim<sup>1,3&ddagger;</sup>
+            </span>
+          </div>
+
+          <div class="is-size-6 publication-authors" style="margin-top: 0.6rem;">
+            <span class="author-block"><sup>1</sup>Human-inspired AI Research, Korea University</span> &nbsp;
+            <span class="author-block"><sup>2</sup>CSE, Konkuk University</span> &nbsp;
+            <span class="author-block"><sup>3</sup>CSE, Korea University</span>
+          </div>
+          <div class="is-size-7" style="margin-top: 0.3rem; color: #888;">
+            <sup>&ddagger;</sup>Corresponding authors
+          </div>
+
+          <div class="is-size-6" style="margin-top: 1rem; color: #c0392b; font-weight: 600; font-family: 'Google Sans', sans-serif;">
+            ACL 2026
+          </div>
+
+          <!-- Buttons -->
+          <div class="publication-links">
+            <span class="link-block">
+              <a href="./HiKEY_camera_ready.pdf" class="external-link button is-normal is-rounded is-dark" target="_blank" rel="noopener">
+                <span class="icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM9 13h2v5H9v-5zm4 0h2v5h-2v-5z"/>
+                  </svg>
+                </span>
+                <span>Paper</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="javascript:void(0);" class="external-link button is-normal is-rounded is-dark" style="opacity: 0.55; cursor: not-allowed;" title="arXiv link coming soon">
+                <span class="icon" style="font-family: 'Times New Roman', serif; font-style: italic; font-weight: 700; font-size: 1em; line-height: 1;">𝛼</span>
+                <span>arXiv</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="javascript:void(0);" class="external-link button is-normal is-rounded is-dark" style="opacity: 0.55; cursor: not-allowed;" title="Code release pending">
+                <span class="icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.084-.729.084-.729 1.205.084 1.838 1.237 1.838 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.93 0-1.31.467-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                  </svg>
+                </span>
+                <span>Code</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="#bibtex" class="external-link button is-normal is-rounded is-dark">
+                <span class="icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M9.983 3v7.391c0 5.704-3.731 9.57-8.983 10.609l-.995-2.151c2.432-.917 3.995-3.638 3.995-5.849H0V3h9.983zm14.017 0v7.391c0 5.704-3.748 9.571-9 10.609l-.996-2.151c2.433-.917 3.996-3.638 3.996-5.849h-3.983V3H24z"/>
+                  </svg>
+                </span>
+                <span>BibTeX</span>
+              </a>
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ TEASER FIGURE ════════════ -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./architecture.png" alt="HiKEY system architecture">
+      <p class="subtitle" style="max-width: 820px; margin: 1.25rem auto 0; text-align: left;">
+        <strong>Figure 1.</strong> Overview of HiKEY.
+        (1) <em>Offline</em> hierarchy-aware graph and index construction: each PDF is parsed into a DHP tree whose nodes (text/table/figure blocks) carry section-path metadata, then encoded into Doc_cards (global routing) and Sec_cards (fine retrieval).
+        (2) <em>Online</em> hierarchical coarse-to-fine retrieval: Stage-1 prunes the corpus by Doc_card hybrid scoring; Stage-2 ranks sections via MaxSim over modality-specialized unit scores.
+        (3) <em>Ancestry-aware evidence subgraph assembly</em> serializes the Anchor Unit with its Governing Headers plus sibling/semantic associates under a fixed token budget, then hands the subgraph to an LVLM reader.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ ABSTRACT ════════════ -->
+<section class="section" style="padding-top: 1.5rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content" style="text-align: left;">
+          <p>
+            Retrieval-augmented generation (RAG) for document-based Open-domain Question Answering (ODQA) on large-scale industrial corpora faces two critical bottlenecks: <strong>routing failure</strong> in locating the correct document and <strong>evidence fragmentation</strong> in integrating scattered information.
+            Existing approaches relying on flat text chunks or page-level images inherently struggle to (i) precisely pinpoint the target document among thousands of candidates and (ii) organically connect multimodal evidence — such as tables and figures — within a limited token budget.
+          </p>
+          <p>
+            We propose <strong>HiKEY</strong>, a hierarchical tree-based multimodal retrieval framework that elevates document hierarchy to a first-class retrieval signal.
+            Instead of simple chunking, HiKEY reconstructs a logical heterogeneous graph via Document Hierarchical Parsing (DHP), explicitly encoding parent–child relationships.
+            Adopting a hierarchical coarse-to-fine strategy, the framework (1) performs global <em>routing</em> to rapidly prune the search space using hierarchical indexing, and (2) conducts fine-grained retrieval to rank sections by employing a multimodal fusion strategy that captures the most discriminative evidence.
+            Finally, HiKEY assembles a token-efficient evidence subgraph via a hybrid structural-semantic packing strategy.
+          </p>
+          <p>
+            Experiments on ODQA benchmarks demonstrate that HiKEY significantly outperforms page- and chunk-based baselines, improving <strong>retrieval recall by up to +12.9%</strong> and <strong>end-to-end QA performance by up to +6.8%</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ CONTRIBUTIONS ════════════ -->
+<section class="section" style="padding-top: 1rem; padding-bottom: 1.5rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Contributions</h2>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="contribution-list">
+          <div class="contribution-item">
+            <span class="contribution-num">1</span>
+            <div class="contribution-text">
+              <strong>HiKEY framework.</strong> A hierarchical tree-based multimodal retrieval framework that elevates document hierarchy from passive metadata to a <em>first-class retrieval signal</em>. By reconstructing a logical graph via DHP, HiKEY structurally resolves the evidence fragmentation problem inherent in industrial documents — bridging the gap between flat retrieval and complex document layouts.
+            </div>
+          </div>
+          <div class="contribution-item">
+            <span class="contribution-num">2</span>
+            <div class="contribution-text">
+              <strong>Hierarchical coarse-to-fine retrieval.</strong> A retrieval strategy that integrates global routing with local fine-grained ranking. A fine-grained multimodal fusion strategy identifies the most discriminative evidence within a section, coupled with a graph traversal mechanism that enriches visual units with their hierarchical upper context — ensuring robustness against visual ambiguity and missing captions.
+            </div>
+          </div>
+          <div class="contribution-item">
+            <span class="contribution-num">3</span>
+            <div class="contribution-text">
+              <strong>Comprehensive experiments.</strong> Across industrial-aligned multi-page document ODQA benchmarks, HiKEY consistently outperforms state-of-the-art text-based and multimodal RAG baselines. Retrieval improves by 4.5%–12.9% and QA by 3.7%–6.8%, validating the efficacy of ancestry-aware subgraph assembly in token-limited settings.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ KEY RESULTS (BIG NUMBERS) ════════════ -->
+<section class="section" style="background-color: #fafafa;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column has-text-centered">
+        <h2 class="title is-3">Headline results</h2>
+        <p class="subtitle is-size-6" style="color: #666;">Improvement over the strongest chunk- / page-based baseline (MultiDocFusion · SimpleDoc).</p>
+      </div>
+    </div>
+    <div class="columns is-centered" style="margin-top: 1rem;">
+      <div class="column is-one-third stat-card-col">
+        <div class="stat-card">
+          <div class="value">+12.9%</div>
+          <div class="label">peak retrieval recall gain</div>
+          <div class="meta">FRAMES strict All, MultiDocFusion → HiKEY (+11.4)</div>
+        </div>
+      </div>
+      <div class="column is-one-third stat-card-col">
+        <div class="stat-card">
+          <div class="value">+6.8%</div>
+          <div class="label">peak end-to-end QA gain</div>
+          <div class="meta">FRAMES ROUGE-L, MultiDocFusion → HiKEY</div>
+        </div>
+      </div>
+      <div class="column is-one-third stat-card-col">
+        <div class="stat-card">
+          <div class="value">+4.5%</div>
+          <div class="label">R@10 lift at 0.5K-token budget</div>
+          <div class="meta">where page-level methods can no longer fit</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ METHOD ════════════ -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Method</h2>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="content">
+          <p>
+            HiKEY treats retrieval as a <em>hierarchy-aware</em> problem. Before retrieving, every document is rebuilt as a heterogeneous tree of multimodal blocks; at query time, the corpus is explored coarse-to-fine and a token-budgeted evidence subgraph is handed to the reader. The pipeline has four phases:
+          </p>
+
+          <h3 class="title is-4" style="margin-top: 2.25rem;"><span style="color: #c0392b;">(a)</span> Offline: Hierarchical Tree Graph Parsing</h3>
+          <p>
+            Each document <em>d</em> is processed by a <strong>Document Hierarchical Parsing (DHP)</strong> module — the M3DocDep parser trained on public hierarchy datasets — which produces a logical tree <em>T(d)</em> from page-level layout blocks. Every block (text, table, figure) becomes a node connected by parent–child tree edges <em>E<sub>tree</sub></em> and receives an ancestor section path (e.g. <code>Title › §5 › §5.3</code>). For visual units lacking captions, a tree traversal pulls the nearest preceding textual node as <strong>Upper Context</strong> <em>ctx(c)</em>, reducing visual ambiguity.
+          </p>
+
+          <h3 class="title is-4" style="margin-top: 2.25rem;"><span style="color: #c0392b;">(b)</span> Offline: Card-based Index Generation</h3>
+          <p>
+            HiKEY emits two hierarchical card types per document. A <strong>Doc_card</strong> — <em>x<sub>d</sub></em> = Title(d) ∥ ⋃<sub>s∈T(d)</sub> path(s) — concatenates the document title with all section paths into a separate hierarchy field used for global routing. A <strong>Sec_card</strong> stores each section's text and non-text units <em>C<sub>s</sub></em> = {c<sub>1</sub>, …, c<sub>n</sub>} as searchable items, with each unit tagged by its modality type τ(c) ∈ {Text, Table, Image}.
+          </p>
+
+          <h3 class="title is-4" style="margin-top: 2.25rem;"><span style="color: #c0392b;">(c)</span> Online: Stage-1 Hierarchical Document Routing</h3>
+          <p>
+            For a query <em>q</em>, HiKEY first narrows the search scope by ranking Doc_cards via a hybrid lexical + dense-text score:
+          </p>
+          <p style="text-align: center; font-family: ui-monospace,'SF Mono',Consolas,monospace; background: #fafafa; padding: 0.85rem; border-left: 3px solid #c0392b; margin: 0.6rem 0;">
+            S<sub>doc</sub>(d, q) = α · mm(s<sub>lex</sub>(x<sub>d</sub>, q)) + (1−α) · mm(s<sub>text</sub>(x<sub>d</sub>, q))
+          </p>
+          <p>
+            with per-query min–max normalization mm(·). The separately-indexed hierarchy paths in <em>x<sub>d</sub></em> turn the table-of-contents into a directly searchable signal — the lever that resolves <em>routing failure</em>.
+          </p>
+
+          <h3 class="title is-4" style="margin-top: 2.25rem;"><span style="color: #c0392b;">(d)</span> Online: Stage-2 Section MaxSim Scoring + Subgraph Assembly</h3>
+          <p>
+            Within the routed candidate set, each unit gets a <em>type-specific</em> score (hybrid text scoring for Text units; weighted vision + Upper-Context text scoring for Tables/Images). A section's relevance is the MaxSim over its units, and the final ranking fuses document and section scores. The top-<em>K<sub>sec</sub></em> sections are then packed into the reader's token budget <em>B<sub>tok</sub></em> by inserting the Anchor Unit and its Governing Headers, then expanding with <strong>Sibling Units</strong> (same-subtree structural association) and <strong>Semantic Associates</strong> (high-similarity non-local units) — preserving logical coherence while capturing cross-section dependencies.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ PIPELINE WALKTHROUGH ════════════ -->
+<section class="section" style="background-color: #fafafa;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">How a query flows through HiKEY</h2>
+        <p class="content" style="text-align: left;">
+          A worked example. The user asks a multi-hop, table-grounded question against a corpus of multi-page PDFs. We trace what each stage sees and emits.
+        </p>
+      </div>
+    </div>
+
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="walkthrough">
+
+          <div class="walk-steps" role="tablist">
+            <button class="walk-step active" data-step="1" role="tab" aria-selected="true">
+              <span class="walk-num">1</span><span class="walk-label">Query</span>
+            </button>
+            <button class="walk-step" data-step="2" role="tab" aria-selected="false">
+              <span class="walk-num">2</span><span class="walk-label">Stage-1 routing</span>
+            </button>
+            <button class="walk-step" data-step="3" role="tab" aria-selected="false">
+              <span class="walk-num">3</span><span class="walk-label">Stage-2 MaxSim</span>
+            </button>
+            <button class="walk-step" data-step="4" role="tab" aria-selected="false">
+              <span class="walk-num">4</span><span class="walk-label">Subgraph → reader</span>
+            </button>
+          </div>
+
+          <div class="walk-pane active" data-pane="1">
+            <p class="walk-desc">
+              <strong>Input query.</strong> A multi-hop question whose answer is split across two PDFs and partially lives in a table cell.
+            </p>
+            <div class="pipeline-box">
+              <strong>q:</strong> <em>"In the Apollo 11 mission, who was the command-module pilot, and what was the lunar-module's payload mass at landing?"</em>
+              <br><span style="color:#888; font-size:0.85rem;">Evidence type: Text + Table · Hops: 2 documents</span>
+            </div>
+          </div>
+
+          <div class="walk-pane" data-pane="2">
+            <p class="walk-desc">
+              <strong>Hierarchical document routing.</strong> Doc_cards index title + section paths in a <em>separate hierarchy field</em>. HiKEY scores every Doc_card with a lexical + dense-text hybrid, normalizes per query, and returns a candidate set <code>D̂<sub>q</sub></code> — typically a handful of docs out of thousands.
+            </p>
+            <span class="pipeline-eq">S<sub>doc</sub>(d, q) = α · mm(s<sub>lex</sub>) + (1−α) · mm(s<sub>text</sub>)</span>
+            <div class="pipeline-box">
+              <strong>D̂<sub>q</sub>:</strong> <code>apollo_11_mission.pdf</code> · <code>lunar_module_eagle.pdf</code> · <code>apollo_crew_bios.pdf</code>
+              <br><span style="color:#888; font-size:0.85rem;">Field-separated hierarchy lifts Avg R@10 from 84.6 → 88.6 vs. concatenation.</span>
+            </div>
+          </div>
+
+          <div class="walk-pane" data-pane="3">
+            <p class="walk-desc">
+              <strong>Section MaxSim with type-specific scoring.</strong> Inside each candidate doc, every unit is scored under its modality. Tables/Images additionally use the Upper-Context text signal (the closest textual ancestor in the DHP tree) — fixing the case where a figure has no caption.
+            </p>
+            <span class="pipeline-eq">S<sub>sec</sub>(s, q) = max<sub>c ∈ C<sub>s</sub></sub> s(c, q)</span>
+            <div class="pipeline-box">
+              <strong>Top sections:</strong>
+              <br>• <code>apollo_crew_bios.pdf › Crew › Command Module Pilot</code> &nbsp;<em>(Text anchor)</em>
+              <br>• <code>lunar_module_eagle.pdf › Specifications › Mass &amp; Payload</code> &nbsp;<em>(Table anchor + Upper Context)</em>
+            </div>
+          </div>
+
+          <div class="walk-pane" data-pane="4">
+            <p class="walk-desc">
+              <strong>Ancestry-aware subgraph.</strong> HiKEY packs the Anchor Unit + its Governing Headers, then fills the remaining budget with Sibling Units (same parent section) and Semantic Associates (high-similarity non-local units). The reader (LVLM) sees a token-efficient subgraph with the hierarchy intact.
+            </p>
+            <div class="pipeline-box">
+              <strong>Subgraph (≤ 0.5K tokens):</strong>
+              <br><code># Apollo 11 › ## Crew › ### Command Module Pilot</code>
+              <br>&nbsp;&nbsp;<em>Anchor:</em> "Michael Collins served as the command module pilot…"
+              <br><code># Lunar Module Eagle › ## Specifications › ### Mass &amp; Payload</code>
+              <br>&nbsp;&nbsp;<em>Anchor (Table):</em> [landing mass row · descent-stage payload]
+              <br>&nbsp;&nbsp;<em>Sibling:</em> [propellant table — same parent §Specifications]
+              <br><span style="color:#888; font-size:0.85rem;">Budget-aware: HiKEY stays best even at 0.5K, where page-level methods cannot fit at all.</span>
+            </div>
+          </div>
+
+        </div>
+        <p style="font-size:0.78rem; color:#888; font-style:italic; text-align:center; margin-top:0.85rem;">
+          Schematic walkthrough; reproduces the running example from the paper's appendix.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ RESULTS ════════════ -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3" style="margin-bottom: 1rem;">Results</h2>
+        <p class="content" style="margin-bottom: 2.5rem;">
+          Evaluated on two industrial-aligned ODQA benchmarks — <strong>M3DocVQA</strong> (multi-page mixed-modality QA) and <strong>FRAMES-PDF</strong> (re-rendered multi-document multi-hop QA) — under a fixed Qwen2.5-VL-7B reader with a 16K token budget.
+        </p>
+      </div>
+    </div>
+
+    <!-- Document retrieval table -->
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h3 class="title is-5 has-text-centered" style="margin-bottom: 1rem;">Document-level retrieval — averaged over K = 1…10 (%)</h3>
+        <div class="table-scroll">
+          <table class="results" style="width: 100%; max-width: 760px; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th></th>
+                <th colspan="2">M3DocVQA</th>
+                <th colspan="2">FRAMES</th>
+                <th colspan="2">AVG</th>
+              </tr>
+              <tr style="font-size: 0.78rem;">
+                <th></th>
+                <th>Recall</th><th>All</th>
+                <th>Recall</th><th>All</th>
+                <th>Recall</th><th>All</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="group-header"><td colspan="7">Text chunk-based RAG</td></tr>
+              <tr><td>Page</td><td>80.6</td><td>66.4</td><td>65.4</td><td>34.4</td><td>73.0</td><td>50.4</td></tr>
+              <tr><td>LumberChunker</td><td>81.5</td><td>68.1</td><td>64.8</td><td>33.2</td><td>73.2</td><td>50.6</td></tr>
+              <tr><td>MultiDocFusion</td><td>83.0</td><td>70.5</td><td>66.2</td><td>34.8</td><td>74.6</td><td>52.6</td></tr>
+              <tr class="group-header"><td colspan="7">Text-based GraphRAG</td></tr>
+              <tr><td>RAPTOR</td><td>81.8</td><td>68.4</td><td>64.9</td><td>33.3</td><td>73.4</td><td>50.9</td></tr>
+              <tr><td>HopRAG</td><td>82.3</td><td>69.3</td><td>65.8</td><td>34.2</td><td>74.1</td><td>51.8</td></tr>
+              <tr class="group-header"><td colspan="7">Page-level multimodal RAG</td></tr>
+              <tr class="dim"><td>M3DocRAG</td><td>75.6</td><td>61.4</td><td>56.8</td><td>25.0</td><td>66.2</td><td>43.2</td></tr>
+              <tr class="dim"><td>VDocRAG</td><td>77.1</td><td>63.2</td><td>58.5</td><td>26.5</td><td>67.8</td><td>44.9</td></tr>
+              <tr class="group-header"><td colspan="7">Multimodal GraphRAG</td></tr>
+              <tr><td>MoLoRAG</td><td>76.0</td><td>62.0</td><td>57.4</td><td>25.5</td><td>66.7</td><td>43.8</td></tr>
+              <tr><td>SimpleDoc</td><td>77.3</td><td>63.6</td><td>60.6</td><td>28.4</td><td>69.0</td><td>46.0</td></tr>
+              <tr class="ours">
+                <td>HiKEY (ours)</td>
+                <td>84.9</td><td>73.6</td>
+                <td>73.3</td><td>46.2</td>
+                <td>79.1</td><td>59.9</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="has-text-centered" style="font-size: 0.85rem; color: #888; font-style: italic; margin-top: 0.5rem;">
+          Largest gains under the strict <em>All</em> metric on FRAMES (+11.4 vs. MultiDocFusion) — where every supporting document must be retrieved.
+        </p>
+      </div>
+    </div>
+
+    <!-- End-to-end QA table -->
+    <div class="columns is-centered" style="margin-top: 3rem;">
+      <div class="column is-four-fifths">
+        <h3 class="title is-5 has-text-centered" style="margin-bottom: 1rem;">End-to-end QA — ANLS / ROUGE-L (%)</h3>
+        <div class="table-scroll">
+          <table class="results" style="width: 100%; max-width: 720px; margin: 0 auto;">
+            <thead>
+              <tr>
+                <th></th>
+                <th colspan="2">M3DocVQA</th>
+                <th colspan="2">FRAMES</th>
+              </tr>
+              <tr style="font-size: 0.78rem;">
+                <th></th>
+                <th>ANLS</th><th>ROUGE-L</th>
+                <th>ANLS</th><th>ROUGE-L</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>LumberChunker</td><td>24.2</td><td>25.6</td><td>9.4</td><td>12.5</td></tr>
+              <tr><td>MultiDocFusion</td><td>25.9</td><td>27.3</td><td>10.8</td><td>13.9</td></tr>
+              <tr><td>HopRAG</td><td>25.7</td><td>27.1</td><td>10.7</td><td>13.8</td></tr>
+              <tr class="dim"><td>M3DocRAG</td><td>27.0</td><td>28.2</td><td>5.9</td><td>9.0</td></tr>
+              <tr class="dim"><td>VDocRAG</td><td>27.4</td><td>28.8</td><td>6.3</td><td>9.4</td></tr>
+              <tr><td>MoLoRAG</td><td>28.2</td><td>30.0</td><td>6.5</td><td>9.6</td></tr>
+              <tr><td>SimpleDoc</td><td>28.7</td><td>30.1</td><td>6.8</td><td>9.9</td></tr>
+              <tr class="ours">
+                <td>HiKEY (ours)</td>
+                <td>30.7</td><td>32.2</td>
+                <td>14.6</td><td>17.7</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="has-text-centered" style="font-size: 0.85rem; color: #888; font-style: italic; margin-top: 0.5rem;">
+          On FRAMES, HiKEY closes the gap that multimodal page-level methods open up vs. text — ROUGE-L +3.8 over MultiDocFusion.
+        </p>
+      </div>
+    </div>
+
+    <!-- Token budget + Ablation side by side -->
+    <div class="columns is-centered" style="margin-top: 3rem;">
+      <div class="column is-half">
+        <h3 class="title is-5 has-text-centered">Token-budget sensitivity — R@10 (%)</h3>
+        <table class="results" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>0.5K</th>
+                <th>1K</th>
+                <th>2K</th>
+                <th>Avg</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>LumberChunker</td><td>72.8</td><td>73.2</td><td>75.3</td><td>73.6</td></tr>
+              <tr><td>MultiDocFusion</td><td>74.3</td><td>74.6</td><td>76.8</td><td>75.0</td></tr>
+              <tr class="dim"><td>SimpleDoc (page)</td><td colspan="3" style="color:#aaa;">fixed — cannot resize</td><td>69.0</td></tr>
+              <tr class="ours">
+                <td>HiKEY</td>
+                <td>78.8</td><td>79.1</td><td>81.3</td><td><strong>79.5</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        <p class="has-text-centered" style="font-size: 0.8rem; color: #888; font-style: italic; margin-top: 0.5rem;">
+          HiKEY remains best at every budget — page-level units cannot dynamically resize.
+        </p>
+      </div>
+
+      <div class="column is-half">
+        <h3 class="title is-5 has-text-centered">Ablation — Avg R@10</h3>
+        <div style="max-width: 380px; margin: 0 auto;">
+          <div class="ablation-group">Stage-1 · Hierarchy indexing</div>
+          <div class="ablation-row">
+            <span>Body-only (no hierarchy)</span>
+            <span class="ablation-value">81.2</span>
+          </div>
+          <div class="ablation-row">
+            <span>+ Concat title/header</span>
+            <span class="ablation-value">84.6</span>
+          </div>
+          <div class="ablation-row">
+            <span>+ Field-separated (ours)</span>
+            <span class="ablation-value">88.6</span>
+          </div>
+          <div class="ablation-group">Stage-1 · Routing strategy</div>
+          <div class="ablation-row">
+            <span>Sec-only routing</span>
+            <span class="ablation-value">76.1</span>
+          </div>
+          <div class="ablation-row">
+            <span>Doc-only routing</span>
+            <span class="ablation-value">87.7</span>
+          </div>
+          <div class="ablation-row">
+            <span>Doc → Sec coarse-to-fine (ours)</span>
+            <span class="ablation-value">88.6</span>
+          </div>
+          <div class="ablation-group">Stage-2 · Fusion signals</div>
+          <div class="ablation-row">
+            <span>BM25 only</span>
+            <span class="ablation-value">87.6</span>
+          </div>
+          <div class="ablation-row">
+            <span>+ Text dense</span>
+            <span class="ablation-value">88.2</span>
+          </div>
+          <div class="ablation-row">
+            <span>+ Visual dense (full)</span>
+            <span class="ablation-value">88.6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why baselines fail -->
+    <div class="columns is-centered" style="margin-top: 2rem;">
+      <div class="column is-four-fifths">
+        <div class="notification" style="background-color: #fff9f3; border-left: 4px solid #c0392b;">
+          <h3 class="title is-5">Why HiKEY beats every baseline family</h3>
+          <p style="margin-bottom: 0.4rem;">
+            <strong>Chunk-based text RAG.</strong> Weak document-level cues → field-separated hierarchy in <code>Doc_card</code> lifts Avg R@10 84.6 → 88.6.
+          </p>
+          <p style="margin-bottom: 0.4rem;">
+            <strong>Text-only GraphRAG.</strong> Tables/figures not first-class → Type-specific unit scoring + region-level visual embeddings (Table +2.9, Image +2.8 ANLS).
+          </p>
+          <p style="margin-bottom: 0.4rem;">
+            <strong>Page-level multimodal RAG.</strong> Whole-page units dilute evidence → block units + ancestry-aware packing; FRAMES strict <em>All</em> 34.8 → 46.2 (+11.4).
+          </p>
+          <p style="margin-bottom: 0;">
+            <strong>Multimodal page-graph GraphRAG.</strong> Connectivity without hierarchical scope → governing-headers + hybrid sibling/semantic expansion holds gains down to the 0.5K budget where page units no longer fit.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ BIBTEX ════════════ -->
+<section class="section" id="bibtex" style="background-color: #fafafa;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">BibTeX</h2>
+    <div class="bibtex-wrapper">
+      <button class="copy-btn" id="copyBibtex">COPY</button>
+<pre class="bibtex-block" id="bibtexText">@inproceedings{shin2026hikey,
+    author    = {Shin, Joongmin and Shim, Gyuho and Park, Jeongbae and Seo, Jaehyung and Lim, Heuiseok},
+    title     = {HiKEY: Hierarchical Multimodal Retrieval for Open-Domain Document Question Answering},
+    booktitle = {Proceedings of the 64th Annual Meeting of the Association for Computational Linguistics (ACL)},
+    year      = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ FOOTER ════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="content">
+      <p>
+        This website is licensed under a
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+      </p>
+      <p>
+        Website template adapted from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+      </p>
+      <p style="margin-top: 1rem; font-size: 0.8rem; color: #999;">
+        &copy; 2026 Joongmin Shin, Gyuho Shim, Jeongbae Park, Jaehyung Seo, Heuiseok Lim.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('copyBibtex').addEventListener('click', function() {
+    const text = document.getElementById('bibtexText').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      this.textContent = 'COPIED';
+      this.classList.add('copied');
+      setTimeout(() => {
+        this.textContent = 'COPY';
+        this.classList.remove('copied');
+      }, 1800);
+    });
+  });
+
+  // Pipeline walkthrough tabs
+  document.querySelectorAll('.walk-step').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step = btn.dataset.step;
+      document.querySelectorAll('.walk-step').forEach(s => {
+        s.classList.remove('active');
+        s.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.walk-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      document.querySelector(`.walk-pane[data-pane="${step}"]`).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
