@@ -356,6 +356,198 @@
     color: #1a1a1a;
     overflow-x: auto;
   }
+  /* Try-it widget — baseline vs HiKEY comparison */
+  .demo-widget {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.75rem;
+    margin-top: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .demo-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .demo-question {
+    background: #f5f5f7;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .demo-question p {
+    margin: 0;
+    font-size: 1.02rem;
+    color: #1a1a1a;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.55rem;
+  }
+  .pill {
+    background: #ffffff;
+    border: 1.5px solid #d0d5dd;
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .pill:hover:not(.active) {
+    border-color: #888;
+    color: #1a1a1a;
+  }
+  .pill.active {
+    background: #1a2030;
+    border-color: #1a2030;
+    color: #ffffff;
+  }
+  .cmp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  .cmp-col {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+  .cmp-ours {
+    border-color: #c0392b;
+    background: #fffaf9;
+  }
+  .cmp-header {
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #eee;
+  }
+  .cmp-ours .cmp-header {
+    border-bottom-color: #f5d0c8;
+  }
+  .cmp-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    margin-bottom: 0.35rem;
+  }
+  .cmp-tag-ours {
+    color: #c0392b;
+  }
+  .cmp-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 0.3rem 0;
+    line-height: 1.3;
+  }
+  .cmp-sub {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+    line-height: 1.45;
+  }
+  .cmp-body {
+    flex: 1;
+    margin-bottom: 0.85rem;
+  }
+  .chunk-card {
+    background: #fafafa;
+    border-left: 3px solid #c4c4c4;
+    border-radius: 0 4px 4px 0;
+    padding: 0.75rem 0.95rem;
+    margin-bottom: 0.65rem;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: #2c2c2c;
+  }
+  .cmp-ours .chunk-card {
+    background: #fff5f3;
+    border-left-color: #c0392b;
+  }
+  .chunk-num {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888;
+    margin-bottom: 0.35rem;
+  }
+  .cmp-ours .chunk-num {
+    color: #c0392b;
+  }
+  .chunk-meta {
+    display: block;
+    font-size: 0.78rem;
+    color: #c0392b;
+    font-family: ui-monospace, 'SF Mono', Consolas, monospace;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+  }
+  .chunk-meta-sub {
+    color: #888;
+    font-weight: normal;
+  }
+  .chunk-bracket {
+    color: #888;
+    font-style: italic;
+  }
+  .chunk-text {
+    color: #2c2c2c;
+  }
+  .chunk-tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.1rem 0.45rem;
+    border-radius: 3px;
+    margin-right: 0.35rem;
+    vertical-align: 0.06rem;
+  }
+  .tag-anchor { background:#fdebe8; color:#c0392b; }
+  .tag-sibling { background:#e8f1ff; color:#1d4ed8; }
+  .tag-semantic { background:#e9f7ef; color:#1e8449; }
+  .tag-fail { background:#fef3c7; color:#92400e; }
+  .demo-callout {
+    background: #fdf2f0;
+    border-left: 3px solid #c0392b;
+    border-radius: 0 4px 4px 0;
+    padding: 0.85rem 1.1rem;
+    margin-top: 1rem;
+    font-size: 0.88rem;
+    color: #2c2c2c;
+    line-height: 1.55;
+  }
+  .demo-callout strong { color: #1a1a1a; }
+  @media (max-width: 768px) {
+    .cmp-grid {
+      grid-template-columns: 1fr;
+    }
+    .pill {
+      font-size: 0.82rem;
+      padding: 0.45rem 0.85rem;
+    }
+  }
   @media (max-width: 768px) {
     .walk-step {
       font-size: 0.82rem;
@@ -743,6 +935,77 @@
   </div>
 </section>
 
+<!-- ════════════ TRY IT — BASELINE vs HiKEY ════════════ -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Try it: Compare what each baseline retrieves</h2>
+        <p class="content">
+          Reproduced from the paper's <em>Apppendix G qualitative walkthrough</em> and the <em>three documented baseline failure modes</em> (Appendix H, F1–F3). For the same Apollo 11 query, each baseline family produces its own evidence — switch baselines to see exactly how HiKEY's ancestry-aware subgraph differs.
+        </p>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="demo-widget">
+
+          <div class="demo-question">
+            <span class="demo-label">Query</span>
+            <p><em>"Who were the crew members of Apollo 11, and when did they land on the Moon?"</em></p>
+            <p style="font-size: 0.82rem; color: #888; margin-top: 0.5rem;">Evidence: Text + Table · Sections: §3.1 Prime crew (crew) + §5.1 Landing (landing time)</p>
+          </div>
+
+          <!-- Baseline selector pills -->
+          <div style="margin-bottom: 1.5rem;">
+            <span class="demo-label">Select a baseline family</span>
+            <div class="pill-group">
+              <button class="pill active" data-bl="chunk">Chunk-RAG <span style="opacity:.6;">(LumberChunker)</span></button>
+              <button class="pill" data-bl="mdf">MultiDocFusion</button>
+              <button class="pill" data-bl="text-graph">Text GraphRAG <span style="opacity:.6;">(HopRAG)</span></button>
+              <button class="pill" data-bl="page-mm">Page-level MM RAG <span style="opacity:.6;">(M3DocRAG)</span></button>
+              <button class="pill" data-bl="mm-graph">Multimodal GraphRAG <span style="opacity:.6;">(SimpleDoc)</span></button>
+            </div>
+          </div>
+
+          <div class="cmp-grid">
+
+            <!-- Left: selected baseline -->
+            <div class="cmp-col cmp-baseline">
+              <div class="cmp-header">
+                <span class="cmp-tag">Baseline</span>
+                <h4 class="cmp-title" id="blName">Chunk-RAG (LumberChunker)</h4>
+                <p class="cmp-sub" id="blSub">Flat text chunks, no hierarchy field, corpus-wide similarity.</p>
+              </div>
+              <div class="cmp-body" id="blChunks"></div>
+              <div class="demo-callout" id="blCallout"></div>
+            </div>
+
+            <!-- Right: HiKEY -->
+            <div class="cmp-col cmp-ours">
+              <div class="cmp-header">
+                <span class="cmp-tag cmp-tag-ours">HiKEY (ours)</span>
+                <h4 class="cmp-title">Ancestry-aware evidence subgraph</h4>
+                <p class="cmp-sub">Anchor + Governing Headers, Sibling expansion within §3.1, Semantic Associate from §5.1 — packed under <code>B<sub>tok</sub></code>.</p>
+              </div>
+              <div class="cmp-body" id="ourChunks"></div>
+              <div class="demo-callout">
+                <strong>Result:</strong> Both answer-bearing units arrive in one budget-aware subgraph — crew table (Sibling) <em>and</em> landing-time table (Semantic Associate) — each tagged with its own section path so the LVLM never confuses scope.
+              </div>
+            </div>
+
+          </div>
+
+          <p style="text-align:center; font-size:0.78rem; color:#999; font-style:italic; margin-top:1rem;">
+            HiKEY's subgraph reproduces the exact serialized prompt from Appendix G.2; baseline behaviors track the failure modes documented in Appendix H.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ════════════ RESULTS ════════════ -->
 <section class="section">
   <div class="container is-max-desktop">
@@ -1005,6 +1268,167 @@
       document.querySelector(`.walk-pane[data-pane="${step}"]`).classList.add('active');
     });
   });
+
+  // ─────────────────────────────────────────────────────────────
+  // "Try it" widget — HiKEY's subgraph vs each baseline family,
+  // reproducing the Apollo 11 walkthrough from Appendix G plus
+  // the F1–F3 failure modes documented in Appendix H.
+  // ─────────────────────────────────────────────────────────────
+
+  // HiKEY's emitted subgraph (verbatim from Appendix G.2's serialized prompt).
+  const hikeyChunks = [
+    {
+      meta: '<span class="chunk-meta">section_path: Apollo 11 &gt; 3 Mission personnel &gt; 3.1 Prime crew</span><span class="chunk-meta chunk-meta-sub">unit_id: 42 · Type: Text · page: 5</span>',
+      text: '<span class="chunk-tag tag-anchor">Anchor</span>The prime crew for Apollo 11 consisted of Commander Neil Armstrong, Command Module Pilot Michael Collins, and Lunar Module Pilot Edwin "Buzz" Aldrin. Their positions are detailed in Table 1.'
+    },
+    {
+      meta: '<span class="chunk-meta">section_path: Apollo 11 &gt; 3 Mission personnel &gt; 3.1 Prime crew</span><span class="chunk-meta chunk-meta-sub">unit_id: 43 · Type: Table · page: 5</span>',
+      text: '<span class="chunk-tag tag-sibling">Sibling</span>[Table crop] Position | Astronaut — Commander: Neil A. Armstrong · Command Module Pilot: Michael Collins · Lunar Module Pilot: Edwin "Buzz" Aldrin. <span class="chunk-bracket">(same-subtree sibling under §3.1)</span>'
+    },
+    {
+      meta: '<span class="chunk-meta">section_path: Apollo 11 &gt; 5 Mission events &gt; 5.1 Landing</span><span class="chunk-meta chunk-meta-sub">unit_id: 71 · Type: Table · page: 12</span>',
+      text: '<span class="chunk-tag tag-semantic">Semantic Associate</span>[Table crop] Event | Date (UTC) — Lunar landing: <strong>July 20, 1969, 20:17 UTC</strong> · First step on the Moon: July 21, 1969, 02:56 UTC. <span class="chunk-bracket">(retrieved by visual similarity to the anchor; ancestry chain attached so the LVLM does not confuse scope)</span>'
+    }
+  ];
+
+  // Baseline behaviors — each maps onto a paper-documented failure mode.
+  const baselines = {
+    chunk: {
+      name: "Chunk-RAG (LumberChunker)",
+      sub: "Flat LLM-bounded text chunks, no hierarchy field, no first-class table/figure units.",
+      callout: "<strong>F1 — Routing failure (Appendix H).</strong> Body-text similarity locks onto another article that also mentions \"Apollo\" (e.g., the Apollo program overview). The crew table is never retrieved because tables are not first-class units. This is one reason chunk-RAG's FRAMES <em>All</em> trails its Hit substantially.",
+      chunks: [
+        {
+          meta: '<span class="chunk-bracket">[chunk_id=018 · doc: apollo_program.pdf · no hierarchy field]</span>',
+          text: '<span class="chunk-tag tag-fail">⚠ Wrong doc</span>The Apollo program was the third United States human spaceflight program carried out by NASA, which succeeded in landing the first humans on the Moon… <span class="chunk-bracket">(retrieved because of strong "Apollo" lexical overlap; this is the program overview, not the Apollo 11 article)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[chunk_id=019 · doc: apollo_program.pdf]</span>',
+          text: 'Six of the missions—Apollo 11, 12, 14, 15, 16, and 17—achieved successful landings on the Moon. The first to land was Apollo 11 in July 1969… <span class="chunk-bracket">(mentions the right date in passing, but never reaches the crew table or the landing-event row)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[chunk_id=204 · doc: apollo_11.pdf]</span>',
+          text: 'The prime crew for Apollo 11 consisted of Commander Neil Armstrong, Command Module Pilot Michael Collins, and Lunar Module Pilot Edwin "Buzz" Aldrin… <span class="chunk-bracket">(ranked 3rd — by the time it arrives the early wrong-doc chunks already burned half the budget)</span>'
+        }
+      ]
+    },
+    mdf: {
+      name: "MultiDocFusion",
+      sub: "Hierarchy-aware text chunking, but the section path is concatenated into the body string (no separately indexed hierarchy field).",
+      callout: "<strong>Stage-1 ablation makes this concrete.</strong> Body-only → +Concat hierarchy → +Field-separated hierarchy: 81.2 → 84.6 → 88.6 Avg R@10. MultiDocFusion lands at 84.6 because concatenation lets body terms swamp the structural signal.",
+      chunks: [
+        {
+          meta: '<span class="chunk-bracket">[hier_chunk · doc: apollo_11.pdf · path concatenated into body]</span>',
+          text: '"Apollo 11 > 3 Mission personnel > 3.1 Prime crew The prime crew for Apollo 11 consisted of Commander Neil Armstrong, Command Module Pilot Michael Collins…" <span class="chunk-bracket">(correct doc, but hierarchy is concatenated — body terms dominate scoring)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[hier_chunk · doc: apollo_11.pdf]</span>',
+          text: '"Apollo 11 > 5 Mission events > 5.1 Landing The Eagle landed at Mare Tranquillitatis at 20:17 UTC on July 20, 1969…" <span class="chunk-bracket">(landing prose; the table itself is split out and ranked lower because tables are not first-class)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[hier_chunk · doc: apollo_program.pdf]</span>',
+          text: '<span class="chunk-tag tag-fail">⚠</span>"Apollo program > 4 Missions > 4.2 Lunar landings Six missions achieved successful landings on the Moon…" <span class="chunk-bracket">(slips in because the hierarchy string lives inside body and body similarity is high)</span>'
+        }
+      ]
+    },
+    "text-graph": {
+      name: "Text-based GraphRAG (HopRAG)",
+      sub: "Chunk-similarity graph with multi-hop expansion. Multi-hop succeeds on text, but tables and figures are not first-class retrieval targets.",
+      callout: "<strong>F3 — Multi-hop on text but breaks on table/figure-anchored evidence (Appendix H).</strong> RAPTOR/HopRAG retrieve nearby text that <em>mentions</em> Table 1 or the landing-time table, missing the content itself. Consistent with the Table (+2.9) and Image (+2.8) gaps in Tab. 3.",
+      chunks: [
+        {
+          meta: '<span class="chunk-bracket">[text_node · doc: apollo_11.pdf · hop=0]</span>',
+          text: 'The prime crew of Apollo 11 was selected in January 1969. Their names and assignments are summarized in Table 1 of this section. <span class="chunk-bracket">(text mentions Table 1; the table crop itself is not in the graph)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[text_node · hop=1, expanded via pseudo-query]</span>',
+          text: 'Commander Neil Armstrong, a former test pilot, had previously flown on Gemini 8… <span class="chunk-bracket">(biographical hop — useful context but does not list all three crew members compactly)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[text_node · hop=2]</span>',
+          text: 'The lunar landing on July 20, 1969 was watched by an estimated 650 million viewers. <span class="chunk-bracket">(again: prose about the landing; the precise UTC time lives in the §5.1 table, which this method cannot reach)</span>'
+        }
+      ]
+    },
+    "page-mm": {
+      name: "Page-level multimodal RAG (M3DocRAG / VDocRAG)",
+      sub: "Full-page image embedding. Captures layout but not block-level structure.",
+      callout: "<strong>F2 — Correct page retrieved, answer drowned by page noise (Appendix H).</strong> Page-level units inject large amounts of irrelevant text + visual noise into the 16K budget, pushing the answer span below the model's attention. At 0.5K budget these methods cannot even fit.",
+      chunks: [
+        {
+          meta: '<span class="chunk-bracket">[page_5 · apollo_11.pdf · whole-page image · ~3.3K tokens]</span>',
+          text: '<span class="chunk-tag tag-fail">⚠ Page-wide noise</span>[full-page rendering] §3 Mission personnel · §3.1 Prime crew · §3.2 Backup crew · §3.3 Support crew · sidebar with mission insignia · launch-vehicle stats… <span class="chunk-bracket">(the crew table is on this page but surrounded by 2K tokens of unrelated content the LVLM has to compete with)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[page_12 · apollo_11.pdf · whole-page image]</span>',
+          text: '[full-page rendering] §5 Mission events · §5.1 Landing · §5.2 Surface operations · multiple photos of EVA · descent-stage diagram… <span class="chunk-bracket">(landing time is in the §5.1 table, but only 1 out of ~3K tokens on this page is the answer)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[page_3 · apollo_11.pdf · whole-page image]</span>',
+          text: '<span class="chunk-tag tag-fail">⚠</span>[full-page rendering] §1 Background · §2 Spacecraft overview … <span class="chunk-bracket">(off-topic page makes it through ranking because the page embedding compresses everything into one vector — at 0.5K budget, methods like this don\'t fit at all and are marked Fixed)</span>'
+        }
+      ]
+    },
+    "mm-graph": {
+      name: "Multimodal page-graph GraphRAG (SimpleDoc / MoLoRAG)",
+      sub: "Pages-as-nodes with similarity edges. Connectivity without hierarchical scope at serialization time.",
+      callout: "<strong>Connectivity without hierarchical scope.</strong> Even when page 5 and page 12 are linked in the page graph, neither node carries a section path the Reader can use to disambiguate ‘Prime crew' (§3.1) from ‘Landing' (§5.1). At 0.5K tokens the page-graph methods can no longer fit — HiKEY's block units + governing-headers still do.",
+      chunks: [
+        {
+          meta: '<span class="chunk-bracket">[page_node_5 · apollo_11.pdf]</span>',
+          text: 'Whole-page embedding of page 5 (mission personnel area). Edge → page_node_12 (similarity 0.71). <span class="chunk-bracket">(no section path — the reader cannot tell the §3.1 crew table apart from §3.2 backup crew on the same page)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[page_node_12 · apollo_11.pdf]</span>',
+          text: 'Whole-page embedding of page 12 (mission events area). Edge → page_node_5. <span class="chunk-bracket">(page-level graph expansion brings both pages — but every section on those pages comes along for the ride)</span>'
+        },
+        {
+          meta: '<span class="chunk-bracket">[page_node_8 · apollo_11.pdf · expanded via page graph]</span>',
+          text: '<span class="chunk-tag tag-fail">⚠</span>Whole-page embedding of page 8 (lunar module engineering). Reached via similarity expansion. <span class="chunk-bracket">(no hierarchical filter — graph traversal cannot tell that this page is structurally unrelated to the §3.1 anchor)</span>'
+        }
+      ]
+    }
+  };
+
+  function renderHikeyChunks(containerEl) {
+    containerEl.innerHTML = hikeyChunks.map((c, i) => `
+      <div class="chunk-card">
+        <span class="chunk-num">Unit ${i+1}</span>
+        ${c.meta || ''}
+        <span class="chunk-text">${c.text}</span>
+      </div>
+    `).join('');
+  }
+
+  function renderBaselineChunks(containerEl, chunks) {
+    containerEl.innerHTML = chunks.map((c, i) => `
+      <div class="chunk-card">
+        <span class="chunk-num">Retrieved ${i+1}</span>
+        ${c.meta || ''}
+        <span class="chunk-text">${c.text}</span>
+      </div>
+    `).join('');
+  }
+
+  function renderBaseline(key) {
+    const b = baselines[key];
+    if (!b) return;
+    document.getElementById('blName').textContent = b.name;
+    document.getElementById('blSub').textContent = b.sub;
+    document.getElementById('blCallout').innerHTML = b.callout;
+    renderBaselineChunks(document.getElementById('blChunks'), b.chunks);
+    renderHikeyChunks(document.getElementById('ourChunks'));
+  }
+
+  document.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      renderBaseline(pill.dataset.bl);
+    });
+  });
+
+  renderBaseline('chunk');
 </script>
 
 </body>
